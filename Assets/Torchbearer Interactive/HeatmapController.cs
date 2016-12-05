@@ -23,6 +23,9 @@ namespace TerrainHeatmap
         [SerializeField]
         TerrainData _terrainData;
 
+        [SerializeField]
+        bool _initialised = false;
+
         public int AlphaMapResolution
         {
             get
@@ -55,11 +58,9 @@ namespace TerrainHeatmap
             set { _dataPointGizmosColor = value; }
         }
 
-        [SerializeField]
-        bool _hasInitialised = false;
-        public bool HasInitialised
+        public bool Initialised
         {
-            get { return _hasInitialised; }
+            get { return _initialised; }
         }
 
         int _selectedHeatmapIndex = 0;
@@ -98,14 +99,15 @@ namespace TerrainHeatmap
         {
             _heatmaps = new List<Heatmap>();
             _heatmaps.Add(new Heatmap("Generated Default Heatmap"));
-            _hasInitialised = false;
+
+            _initialised = true;
         }
 
 
         // Use this for initialization
         void Start()
         {
-            if (HasInitialised == false) Initialise();
+            if (Initialised == false) Initialise();
         }
 
         // Update is called once per frame
@@ -168,7 +170,7 @@ namespace TerrainHeatmap
 
             if (_heatmapController != null)
             {
-                if (_heatmapController.HasInitialised == false) _heatmapController.Initialise();
+                if (_heatmapController.Initialised == false) _heatmapController.Initialise();
             }
         }
 
