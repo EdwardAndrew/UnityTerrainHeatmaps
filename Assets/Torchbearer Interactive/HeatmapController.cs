@@ -87,6 +87,12 @@ namespace TerrainHeatmap
             }
         }
 
+        public SplatPrototype[] Splatprototypes
+        {
+            get { return _terrainData.splatPrototypes; }
+            set { _terrainData.splatPrototypes = value; } 
+        }
+
 
         public void Initialise()
         {
@@ -154,6 +160,7 @@ namespace TerrainHeatmap
         HeatmapController _heatmapController;
         bool _isSceneViewUpdateRequired = false;
         int _selectedTextureGrid = 0;
+        CustomTextureSettingsWindow _tWindow;
 
         void OnEnable()
         {
@@ -163,11 +170,6 @@ namespace TerrainHeatmap
             {
                 if (_heatmapController.HasInitialised == false) _heatmapController.Initialise();
             }
-        }
-
-        void OnDisable()
-        {
-
         }
 
 
@@ -318,22 +320,35 @@ namespace TerrainHeatmap
                 gridStyling.clipping = TextClipping.Overflow;
                 gridStyling.normal.background = TextureGenerator.GenerateTexture2D(new Color(0.17f, 0.17f, 0.17f), gridSquareSize, gridSquareSize);
 
-                //_selectedTextureGrid = GUILayout.SelectionGrid(_selectedTextureGrid, null, _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count, gridRowCount, GUI.skin.customStyles[0]);
+                GUI.skin.customStyles[0] = gridStyling;
+
+
+                _selectedTextureGrid = GUILayout.SelectionGrid(_selectedTextureGrid, GetSplatPrototypesAsTexture2DArray(_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps),gridRowCount, GUI.skin.customStyles[0]);
 
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Add Texture"))
                 {
-
+                    if (_tWindow != null) _tWindow.Close();
+                    _tWindow = CustomTextureSettingsWindow.Setup(this);
+                    _tWindow.ShowAddLayer();
                 }
                 if (GUILayout.Button("Edit Texture"))
                 {
-
+                    if (_tWindow != null) _tWindow.Close();
+                    _tWindow = CustomTextureSettingsWindow.Setup(this);
+                    _tWindow.ShowEditLayer(_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps[_selectedTextureGrid]);
                 }
                 if (GUILayout.Button("Remove Texture"))
                 {
-
+                    if(_heatmapController.SelectedHeatmap.texSource == TextureSource.Custom)
+                    {
+                        if(_selectedTextureGrid >= 0 && _selectedTextureGrid < _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count)
+                        {
+                            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.RemoveAt(_selectedTextureGrid);
+                        }
+                    }
                 }
-                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndHorizontal(); 
             }
         }
 
@@ -390,6 +405,86 @@ namespace TerrainHeatmap
         void UpdateSceneViewIfNeeded()
         {
             if (_isSceneViewUpdateRequired) SceneView.RepaintAll();
+        }
+
+
+        Texture2D[] GetSplatPrototypesAsTexture2DArray(List<HeatmapSplatprototype> splatPrototypes)
+        {
+            if (splatPrototypes == null) return null;
+
+            List<Texture2D> texture2DArray = new List<Texture2D>();
+
+            foreach(HeatmapSplatprototype splatPrototype in splatPrototypes)
+            {
+                if (splatPrototype is TextureSplatMap)
+                {
+                    texture2DArray.Add(((TextureSplatMap)splatPrototype).texture);
+                }
+                else
+                {
+                    texture2DArray.Add(TextureGenerator.GenerateTexture2D(((ColorSplatMap)splatPrototype).color, 40, 40));
+                }
+            }
+
+            return texture2DArray.ToArray();
+        }
+
+        public void UpdateSplatMapProperties(float _metallic, float _smoothness, Vector2 _tileSize, Vector2 _tileOffset, Texture2D _textureMap, Texture2D _normalMap)
+        {
+            SplatPrototype[] splatMaps = _heatmapController.Splatprototypes;
+
+            if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count != splatMaps.Length)
+            {
+                return;
+            }
+            if (!_heatmapController.DisplayHeatmap)
+            {
+                return;
+            }
+
+            if (_textureMap == null) return;
+
+            splatMaps[_selectedTextureGrid].metallic = _metallic;
+            splatMaps[_selectedTextureGrid].smoothness = _smoothness;
+            splatMaps[_selectedTextureGrid].tileOffset = _tileOffset;
+            splatMaps[_selectedTextureGrid].tileSize = _tileSize;
+            splatMaps[_selectedTextureGrid].normalMap = _normalMap;
+            splatMaps[_selectedTextureGrid].texture = _textureMap;
+
+            _heatmapController.Splatprototypes = splatMaps;
+        }
+
+        public void AddHeatmapSplatPrototype(HeatmapSplatprototype newHeatmapSplatprototype)
+        {
+            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Add(newHeatmapSplatprototype);
+        }
+
+        public HeatmapSplatprototype GenerateHeatmapSplatprototype(Texture2D _albedo, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
+        {
+            var returnSplatPrototype = new TextureSplatMap();
+
+            returnSplatPrototype.texture = _albedo;
+            returnSplatPrototype.normalMap = _normal;
+            returnSplatPrototype.metallic = _metallic;
+            returnSplatPrototype.smoothness = _smoothness;
+            returnSplatPrototype.tileOffset = _tileOffset;
+            returnSplatPrototype.tileSizing = _tileSizing;
+
+            return returnSplatPrototype;
+        }
+
+        public HeatmapSplatprototype GenerateHeatmapSplatprototype(Color _color, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
+        {
+            var returnSplatPrototype = new ColorSplatMap();
+
+            returnSplatPrototype.color = _color;
+            returnSplatPrototype.normalMap = _normal;
+            returnSplatPrototype.metallic = _metallic;
+            returnSplatPrototype.smoothness = _smoothness;
+            returnSplatPrototype.tileOffset = _tileOffset;
+            returnSplatPrototype.tileSizing = _tileSizing;
+
+            return returnSplatPrototype;
         }
     }
 #endif
