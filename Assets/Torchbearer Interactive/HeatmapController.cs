@@ -26,6 +26,10 @@ namespace TerrainHeatmap
         [SerializeField]
         bool _initialised = false;
 
+        HeatmapGenerator _hGenerator;
+
+        HeatmapNode[] _customHeatmapNodeArray;
+
         public int AlphaMapResolution
         {
             get
@@ -94,15 +98,90 @@ namespace TerrainHeatmap
             set { _terrainData.splatPrototypes = value; } 
         }
 
+        HeatmapGenerator HeatmapGenerator
+        {
+            get {
+                _hGenerator = _hGenerator != null ? _hGenerator : new HeatmapGenerator();
+                return _hGenerator;
+            }
+        }
+
+
 
         public void Initialise()
         {
+            _terrain = GetComponent<Terrain>();
+            if (_terrain) return;
+
+            _terrainData = _terrain.terrainData;
+
+            DisplayHeatmap = true;
+            DisplayDataPointGizmos = true;
+
             _heatmaps = new List<Heatmap>();
             _heatmaps.Add(new Heatmap("Generated Default Heatmap"));
+
+
 
             _initialised = true;
         }
 
+        public void GenerateHeatmap()
+        {
+            this.PutCustomDataPointsInArray();
+            this.HeatmapGenerator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, _terrain, _customHeatmapNodeArray, this.transform.position);
+        }
+
+
+        public void ShowHeatmap(int heatmapIndex)
+        {          
+            if(_heatmaps != null && heatmapIndex < HeatmapCount && heatmapIndex > 0)
+            {
+                Heatmap heatMapToShow = GetHeatmap(heatmapIndex);
+
+                foreach(SplatPrototype splatPrototype in heatMapToShow.splatPrototypes)
+                {
+                    if (splatPrototype.texture == null) return;
+                }
+
+                _terrainData.splatPrototypes = heatMapToShow.splatPrototypes;
+                _terrainData.SetAlphamaps(0, 0, heatMapToShow.alphaMapData);
+
+            }
+        }
+
+        void PutCustomDataPointsInArray()
+        {
+
+            List<HeatmapNode> heatmapNodeList = new List<HeatmapNode>();
+
+            heatmapNodeList.AddRange(GameObject.FindObjectsOfType<HeatmapNode>());
+
+            List<HeatmapNode> returnList = new List<HeatmapNode>();
+
+            foreach (HeatmapNode customNode in heatmapNodeList)
+            {
+                if (customNode.filter == SelectedHeatmap.filter)
+                {
+                    customNode.UpdatePosition();
+                    returnList.Add(customNode);
+                }
+            }
+
+            _customHeatmapNodeArray = returnList.ToArray();
+
+        }
+
+
+        public Heatmap GetHeatmap(int heatmapIndex)
+        {
+            if(_heatmaps != null && heatmapIndex > 0 && heatmapIndex < _heatmaps.Count)
+            {
+                return _heatmaps[heatmapIndex];
+            }
+
+            return null;
+        }
 
         // Use this for initialization
         void Start()
@@ -191,6 +270,10 @@ namespace TerrainHeatmap
             HorizontalLine();
 
             AddRemoveHeatmapButtons();
+
+            HorizontalLine();
+
+            GenerateHeatmapButton();
 
             UpdateSceneViewIfNeeded();
 
@@ -299,6 +382,15 @@ namespace TerrainHeatmap
             if (_heatmapController.SelectedHeatmap.dataType == HeatmapData.Custom)
             {
                 _heatmapController.SelectedHeatmap.filter = EditorGUILayout.DelayedTextField("Custom Data Filter", _heatmapController.SelectedHeatmap.filter);
+            }
+        }
+
+        void GenerateHeatmapButton()
+        {
+            if(GUILayout.Button("Generate Heatmap"))
+            {
+                _heatmapController.GenerateHeatmap();
+                _heatmapController.ShowHeatmap(_heatmapController.SelectedHeatmapIndex);
             }
         }
 
