@@ -13,8 +13,6 @@ namespace TerrainHeatmap
     [RequireComponent(typeof(TerrainCollider))]
     public class HeatmapController : MonoBehaviour
     {
-
-
         public Terrain referenceTerrainObject;
 
         [SerializeField]
@@ -22,6 +20,9 @@ namespace TerrainHeatmap
 
         [SerializeField]
         TerrainData _terrainData;
+
+        [SerializeField]
+        bool _initialised = false;
 
         public int AlphaMapResolution
         {
@@ -55,11 +56,9 @@ namespace TerrainHeatmap
             set { _dataPointGizmosColor = value; }
         }
 
-        [SerializeField]
-        bool _hasInitialised = false;
-        public bool HasInitialised
+        public bool Initialised
         {
-            get { return _hasInitialised; }
+            get { return _initialised; }
         }
 
         int _selectedHeatmapIndex = 0;
@@ -73,9 +72,8 @@ namespace TerrainHeatmap
         List<Heatmap> _heatmaps;
         public Heatmap SelectedHeatmap
         {
-            get { return _heatmaps[SelectedHeatmapIndex]; }
+            get { return  _heatmaps != null ? _heatmaps[SelectedHeatmapIndex] : null; }
         }
-
 
         public int HeatmapCount
         {
@@ -98,14 +96,26 @@ namespace TerrainHeatmap
         {
             _heatmaps = new List<Heatmap>();
             _heatmaps.Add(new Heatmap("Generated Default Heatmap"));
-            _hasInitialised = false;
+
+            _initialised = true;
+        }
+
+        public void AddNewHeatmap()
+        {
+            _heatmaps.Add(new Heatmap("Generated Default Heatmap"));
+        }
+
+        public void RemoveSelectedHeatmap()
+        {
+            _heatmaps.RemoveAt(SelectedHeatmapIndex);
+            SelectedHeatmapIndex = SelectedHeatmapIndex >= _heatmaps.Count ? _heatmaps.Count - 1 : SelectedHeatmapIndex;
         }
 
 
         // Use this for initialization
         void Start()
         {
-            if (HasInitialised == false) Initialise();
+            if (Initialised == false) Initialise();
         }
 
         // Update is called once per frame
@@ -166,10 +176,7 @@ namespace TerrainHeatmap
         {
             _heatmapController = target is HeatmapController ? target as HeatmapController : null;
 
-            if (_heatmapController != null)
-            {
-                if (_heatmapController.HasInitialised == false) _heatmapController.Initialise();
-            }
+            _heatmapController.Initialise();
         }
 
 
@@ -177,7 +184,14 @@ namespace TerrainHeatmap
         {
             ReferenceTerrainObjectField();
 
+            if (_heatmapController.referenceTerrainObject == null)
+            {
+                DisplayNoTerrainObjectWarning();
+                return;
+            }
+
             DisplayReferenceTerrainObjectToggle();
+
             DisplayDataPointGizmos();
 
             SelectHeatmapButtons();
@@ -192,6 +206,11 @@ namespace TerrainHeatmap
 
             UpdateSceneViewIfNeeded();
 
+        }
+
+        void DisplayNoTerrainObjectWarning()
+        {
+            EditorGUILayout.HelpBox("Select a reference Terrain object.", MessageType.Warning);
         }
 
         void ReferenceTerrainObjectField()
@@ -250,26 +269,43 @@ namespace TerrainHeatmap
         void HeatmapDataGUI()
         {
             DisplayHeatmapName();
+            DisplayBaseValue();
+            DisplayHeatmapConstraints();
             DisplayHeatmapResolution();
             DisplayHeatmapInterpolationMode();
             DisplayHeatmapDataSource();
             DisplayHeatmapTextures();
         }
 
+
+        void DisplayBaseValue()
+        {
+            _heatmapController.SelectedHeatmap.baseValue = EditorGUILayout.FloatField("Base Value",_heatmapController.SelectedHeatmap.baseValue);
+        }
+
+        void DisplayHeatmapConstraints()
+        {
+            _heatmapController.SelectedHeatmap.autoConstrain = EditorGUILayout.Toggle("Auto Constrain",_heatmapController.SelectedHeatmap.autoConstrain);
+
+            if(_heatmapController.SelectedHeatmap.autoConstrain == false)
+            {
+                _heatmapController.SelectedHeatmap.upperValueThreshold = EditorGUILayout.FloatField("    Highest Value Limit", _heatmapController.SelectedHeatmap.upperValueThreshold);
+                _heatmapController.SelectedHeatmap.lowerValueThreshold = EditorGUILayout.FloatField("    Lower Value Limit", _heatmapController.SelectedHeatmap.lowerValueThreshold);
+            }
+        }
+
         void AddRemoveHeatmapButtons()
         {
-            bool isLastHeatmap = _heatmapController.HeatmapCount >= 1 ? false : true;
-
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Add New Heatmap"))
             {
-
+                _heatmapController.AddNewHeatmap();
             }
             GUILayout.Space(30.0f);
-            GUI.enabled = isLastHeatmap;
+            GUI.enabled = _heatmapController.HeatmapCount > 1 ? true : false; ;
             if (GUILayout.Button("Remove Heatmap"))
             {
-
+                 _heatmapController.RemoveSelectedHeatmap();
             }
             GUI.enabled = true;
             EditorGUILayout.EndHorizontal();
@@ -298,6 +334,11 @@ namespace TerrainHeatmap
             {
                 _heatmapController.SelectedHeatmap.filter = EditorGUILayout.DelayedTextField("Custom Data Filter", _heatmapController.SelectedHeatmap.filter);
             }
+        }
+
+        void DisplayHeatmapFlipTextures()
+        {
+            _heatmapController.SelectedHeatmap.displayFlippedConstraints = EditorGUILayout.Toggle("Flip Textures", _heatmapController.SelectedHeatmap.displayFlippedConstraints);
         }
 
         void DisplayHeatmapTextures()
@@ -348,8 +389,15 @@ namespace TerrainHeatmap
                         }
                     }
                 }
-                EditorGUILayout.EndHorizontal(); 
+                EditorGUILayout.EndHorizontal();
+
+                if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count <= 0) DisplayNoHeatmapSplatprototypeWarning();
             }
+        }
+
+        void DisplayNoHeatmapSplatprototypeWarning()
+        {
+            EditorGUILayout.HelpBox("No textures have been provided, use the default textures or add some custom textures.", MessageType.Warning);
         }
 
         void DisplayHeatmapName()
@@ -457,6 +505,12 @@ namespace TerrainHeatmap
         public void AddHeatmapSplatPrototype(HeatmapSplatprototype newHeatmapSplatprototype)
         {
             _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Add(newHeatmapSplatprototype);
+        }
+
+        public void UpdateSelectedSplatPrototype(HeatmapSplatprototype newSplatPrototype)
+        {
+            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.RemoveAt(_selectedTextureGrid);
+            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Insert(_selectedTextureGrid,newSplatPrototype);
         }
 
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Texture2D _albedo, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)

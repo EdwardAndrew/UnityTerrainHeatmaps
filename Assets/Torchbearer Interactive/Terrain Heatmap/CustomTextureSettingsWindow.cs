@@ -126,12 +126,6 @@ namespace TerrainHeatmap
             _editTexture = true;
         }
 
-        void OnDestroy()
-        {
-            this.Apply();
-        }
-
-
 
         // Setup the TerrainDataTextureSettingsWindow so we can use it safely.
         public static CustomTextureSettingsWindow Setup(HeatmapControllerCustomInspector inspector)
@@ -236,6 +230,7 @@ namespace TerrainHeatmap
             if (GUI.Button(new Rect(this.position.width - 105.0f, this.position.height - 25.0f, 100.0f, 20.0f), "Apply"))
             {
                 // Close the window.
+                Apply();
                 this.Close();
             }
 
@@ -261,9 +256,9 @@ namespace TerrainHeatmap
 
                 if (!_textureToggle && _albedoTexture != null)
                 {
-                    _customInspector.AddHeatmapSplatPrototype(_customInspector.GenerateHeatmapSplatprototype(_albedoTexture, _normalTexture, _metallic, _smoothness, _tileOffset, _tileSize));
+                    _customInspector.UpdateSelectedSplatPrototype(_customInspector.GenerateHeatmapSplatprototype(_albedoTexture, _normalTexture, _metallic, _smoothness, _tileOffset, _tileSize));
                 }
-                else _customInspector.AddHeatmapSplatPrototype(_customInspector.GenerateHeatmapSplatprototype(_color, _normalTexture, _metallic, _smoothness, _tileOffset, _tileSize));
+                else _customInspector.UpdateSelectedSplatPrototype(_customInspector.GenerateHeatmapSplatprototype(_color, _normalTexture, _metallic, _smoothness, _tileOffset, _tileSize));
 
             }
         }
