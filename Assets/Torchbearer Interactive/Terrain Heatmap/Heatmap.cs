@@ -19,10 +19,9 @@ namespace TerrainHeatmap
         public string name;
         public TextureSource texSource;
         public SplatPrototype[] splatPrototypes;
-        public InterpolationMode interpolationMode;
+        public InterpolationMode interpolationMode;       
         public HeatmapDatum[,] mapData;
         public HeatmapData dataType;
-        [SerializeField]
         public List<HeatmapSplatprototype> dataVisualisaitonSplatMaps;
         public bool splatPrototypesUpdated;
         public float baseValue;

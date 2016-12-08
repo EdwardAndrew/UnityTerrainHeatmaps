@@ -24,6 +24,7 @@ namespace TerrainHeatmap
         [SerializeField]
         bool _initialised = false;
 
+
         public int AlphaMapResolution
         {
             get
@@ -98,6 +99,8 @@ namespace TerrainHeatmap
             _heatmaps = new List<Heatmap>();
             _heatmaps.Add(new Heatmap("Generated Default Heatmap"));
 
+            GenerateHeatmap();
+
             _initialised = true;
         }
 
@@ -110,6 +113,13 @@ namespace TerrainHeatmap
         {
             _heatmaps.RemoveAt(SelectedHeatmapIndex);
             SelectedHeatmapIndex = SelectedHeatmapIndex >= _heatmaps.Count ? _heatmaps.Count - 1 : SelectedHeatmapIndex;
+        }
+
+        public void GenerateHeatmap()
+        {
+            HeatmapGenerator generator = new HeatmapGenerator();
+
+            generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, GetComponent<Terrain>(), null, this.transform.position);
         }
 
 

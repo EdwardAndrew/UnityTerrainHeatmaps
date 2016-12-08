@@ -19,7 +19,6 @@ namespace TerrainHeatmap
         public Vector2 tileOffset;
         public Vector2 tileSizing;
         public Texture2D normalMap;
-
         public string SplatMapType;
     }
 }
