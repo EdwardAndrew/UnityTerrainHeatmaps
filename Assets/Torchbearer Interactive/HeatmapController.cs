@@ -277,6 +277,7 @@ namespace TerrainHeatmap
             if (GUILayout.Button("<", GUILayout.Width(20.0f)))
             {
                 _heatmapController.SelectedHeatmapIndex--;
+                _isSceneViewUpdateRequired = true;
             }
 
             EditorGUI.BeginChangeCheck();
@@ -286,6 +287,7 @@ namespace TerrainHeatmap
             if (GUILayout.Button(">", GUILayout.Width(20.0f)))
             {
                 _heatmapController.SelectedHeatmapIndex++;
+                _isSceneViewUpdateRequired = true;
             }
 
             GUILayout.Label(" of " + _heatmapController.HeatmapCount, GUILayout.Width(40.0f));
@@ -484,6 +486,7 @@ namespace TerrainHeatmap
 
                 TBUnityLib.Generic.BoundedType<int> boundHeatmapResolution = new TBUnityLib.Generic.BoundedType<int>(_heatmapController.SelectedHeatmap.heatmapResolution, 1, _heatmapController.AlphaMapResolution);
                 _heatmapController.SelectedHeatmap.heatmapResolution = boundHeatmapResolution.Value;
+                _isSceneViewUpdateRequired = true;
 
             }
 
