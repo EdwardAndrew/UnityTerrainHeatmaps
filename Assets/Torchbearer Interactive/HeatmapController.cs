@@ -43,6 +43,7 @@ namespace TerrainHeatmap
             set { _displayHeatmap = value; }
         }
 
+        [SerializeField]
         bool _displayDataPointGizmos = false;
         public bool DisplayDataPointGizmos
         {
@@ -50,6 +51,7 @@ namespace TerrainHeatmap
             set { _displayDataPointGizmos = value; }
         }
 
+        [SerializeField]
         Color _dataPointGizmosColor = Color.green;
         public Color DataPointGizmoColor
         {
@@ -62,6 +64,7 @@ namespace TerrainHeatmap
             get { return _initialised; }
         }
 
+        [SerializeField]
         int _selectedHeatmapIndex = 0;
 
         public int SelectedHeatmapIndex
