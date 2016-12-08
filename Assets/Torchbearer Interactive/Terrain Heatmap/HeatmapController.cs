@@ -216,8 +216,12 @@ namespace TerrainHeatmap
         int _selectedTextureGrid = 0;
         CustomTextureSettingsWindow _tWindow;
 
+        static Texture s_tbLogo;
+
         void OnEnable()
         {
+            if (s_tbLogo == null) s_tbLogo = ((Texture)EditorGUIUtility.Load("Torchbearer Interactive/TBLogo.png"));
+
             _heatmapController = target is HeatmapController ? target as HeatmapController : null;
 
             if(_heatmapController.Initialised == false) _heatmapController.Initialise();
@@ -226,6 +230,8 @@ namespace TerrainHeatmap
 
         public override void OnInspectorGUI()
         {
+            TBLogo();
+
             ReferenceTerrainObjectField();
 
             if (_heatmapController.referenceTerrainObject == null)
@@ -254,6 +260,11 @@ namespace TerrainHeatmap
 
             UpdateSceneViewIfNeeded();
 
+        }
+
+        void TBLogo()
+        {
+            GUILayout.Label(s_tbLogo, GUILayout.Width(EditorGUIUtility.currentViewWidth - 40.0f), GUILayout.Height(60.0f));
         }
 
         void DisplayNoTerrainObjectWarning()
