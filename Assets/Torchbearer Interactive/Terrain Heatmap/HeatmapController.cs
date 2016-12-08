@@ -146,7 +146,7 @@ namespace TerrainHeatmap
 
         public void EditorUpdate()
         {
-
+            
         }
 
         public void ToggleDisplayReferenceObject(bool showObject = false)

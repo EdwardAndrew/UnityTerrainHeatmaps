@@ -103,7 +103,6 @@ namespace TerrainHeatmap
             Heatmap selectedHeatmap;
 
             //Attempt to store the selected Visualisation Texture into a local variable.
-
             if (heatmaps == null)
             {
                 return;
