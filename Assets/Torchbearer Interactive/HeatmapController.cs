@@ -174,6 +174,31 @@ namespace TerrainHeatmap
             }
         }
 
+        private void OnDrawGizmos()
+        {
+            if(DisplayDataPointGizmos)
+            {
+                Gizmos.color = DataPointGizmoColor;
+                Terrain t = GetComponent<Terrain>();
+                int heatMapResolution = SelectedHeatmap.heatmapResolution;
+                float mapDataDistanceX = t.terrainData.size.x / heatMapResolution;
+                float mapDataDistanceZ = t.terrainData.size.z / heatMapResolution;
+
+                for (int x = 0; x <= heatMapResolution; x++)
+                {
+                    for(int z = 0; z <= heatMapResolution; z++)
+                    {
+                        Vector3 gizmoPosition = new Vector3(x * mapDataDistanceX, 0.0f, z * mapDataDistanceZ);
+                        gizmoPosition.y = t.SampleHeight(gizmoPosition);
+
+                        Gizmos.DrawWireCube(gizmoPosition + this.transform.position, Vector3.one);
+                        
+                    }
+                }
+
+            }
+        }
+
 
     }
 
