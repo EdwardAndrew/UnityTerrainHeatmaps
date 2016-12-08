@@ -69,6 +69,7 @@ namespace TerrainHeatmap
             set { _selectedHeatmapIndex = value; }
         }
 
+        [SerializeField]
         List<Heatmap> _heatmaps;
         public Heatmap SelectedHeatmap
         {
@@ -176,7 +177,7 @@ namespace TerrainHeatmap
         {
             _heatmapController = target is HeatmapController ? target as HeatmapController : null;
 
-            _heatmapController.Initialise();
+            if(_heatmapController.Initialised == false) _heatmapController.Initialise();
         }
 
 
@@ -362,13 +363,16 @@ namespace TerrainHeatmap
                 gridStyling.normal.background = TextureGenerator.GenerateTexture2D(new Color(0.17f, 0.17f, 0.17f), gridSquareSize, gridSquareSize);
 
                 GUI.skin.customStyles[0] = gridStyling;
-
-
-                _selectedTextureGrid = GUILayout.SelectionGrid(_selectedTextureGrid, GetSplatPrototypesAsTexture2DArray(_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps),gridRowCount, GUI.skin.customStyles[0]);
+                if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps != null)
+                {
+                    _selectedTextureGrid = GUILayout.SelectionGrid(_selectedTextureGrid, GetSplatPrototypesAsTexture2DArray(_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps), gridRowCount, GUI.skin.customStyles[0]);
+                }
 
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Add Texture"))
                 {
+                    _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps = _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps == null ? new List<HeatmapSplatprototype>() : _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps;
+
                     if (_tWindow != null) _tWindow.Close();
                     _tWindow = CustomTextureSettingsWindow.Setup(this);
                     _tWindow.ShowAddLayer();
@@ -391,7 +395,7 @@ namespace TerrainHeatmap
                 }
                 EditorGUILayout.EndHorizontal();
 
-                if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count <= 0) DisplayNoHeatmapSplatprototypeWarning();
+                if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps == null ||_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count <= 0) DisplayNoHeatmapSplatprototypeWarning();
             }
         }
 
@@ -444,8 +448,6 @@ namespace TerrainHeatmap
                 _heatmapController.SelectedHeatmap.heatmapResolution = boundHeatmapResolution.Value;
 
             }
-
-
 
             EditorGUILayout.EndHorizontal();
         }
@@ -515,7 +517,7 @@ namespace TerrainHeatmap
 
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Texture2D _albedo, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
         {
-            var returnSplatPrototype = new TextureSplatMap();
+            var returnSplatPrototype = ScriptableObject.CreateInstance<TextureSplatMap>();
 
             returnSplatPrototype.texture = _albedo;
             returnSplatPrototype.normalMap = _normal;
@@ -529,7 +531,7 @@ namespace TerrainHeatmap
 
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Color _color, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
         {
-            var returnSplatPrototype = new ColorSplatMap();
+            var returnSplatPrototype = ScriptableObject.CreateInstance<ColorSplatMap>();
 
             returnSplatPrototype.color = _color;
             returnSplatPrototype.normalMap = _normal;

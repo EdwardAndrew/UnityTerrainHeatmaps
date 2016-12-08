@@ -11,7 +11,8 @@ using System.Collections;
 
 namespace TerrainHeatmap
 {
-    public abstract class HeatmapSplatprototype
+    [System.Serializable]
+    public abstract class HeatmapSplatprototype : ScriptableObject
     {
         public float metallic;
         public float smoothness;

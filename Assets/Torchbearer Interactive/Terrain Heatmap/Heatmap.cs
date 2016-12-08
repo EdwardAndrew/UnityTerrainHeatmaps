@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace TerrainHeatmap
 {
+    [System.Serializable]
     public class Heatmap
     {
-
         public int heatmapResolution;
         public bool displayFlippedConstraints;
         public bool autoConstrain;
@@ -22,6 +22,7 @@ namespace TerrainHeatmap
         public InterpolationMode interpolationMode;
         public HeatmapDatum[,] mapData;
         public HeatmapData dataType;
+        [SerializeField]
         public List<HeatmapSplatprototype> dataVisualisaitonSplatMaps;
         public bool splatPrototypesUpdated;
         public float baseValue;
