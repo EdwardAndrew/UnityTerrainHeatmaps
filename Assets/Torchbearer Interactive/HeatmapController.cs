@@ -320,11 +320,16 @@ namespace TerrainHeatmap
         {
             DisplayHeatmapName();
             DisplayBaseValue();
+            DisplayFlipConstraints();
             DisplayHeatmapConstraints();
             DisplayHeatmapResolution();
             DisplayHeatmapInterpolationMode();
             DisplayHeatmapDataSource();
             DisplayHeatmapTextures();
+        }
+        void DisplayFlipConstraints()
+        {
+            _heatmapController.SelectedHeatmap.displayFlippedConstraints = EditorGUILayout.Toggle("Flip Textures", _heatmapController.SelectedHeatmap.displayFlippedConstraints);
         }
 
 
