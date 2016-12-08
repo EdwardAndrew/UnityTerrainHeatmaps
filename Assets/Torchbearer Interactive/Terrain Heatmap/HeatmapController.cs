@@ -284,8 +284,7 @@ namespace TerrainHeatmap
         {
             EditorGUI.BeginChangeCheck();
             _heatmapController.DisplayHeatmap = GUILayout.Toggle(_heatmapController.DisplayHeatmap, "Display Heatmap");
-            EditorGUI.EndChangeCheck();
-            if (GUI.changed) _heatmapController.ToggleDisplayReferenceObject(_heatmapController.DisplayHeatmap);
+            if (EditorGUI.EndChangeCheck()) _heatmapController.ToggleDisplayReferenceObject(_heatmapController.DisplayHeatmap);
         }
 
         void SelectHeatmapButtons()
