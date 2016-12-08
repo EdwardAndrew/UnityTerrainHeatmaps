@@ -122,7 +122,12 @@ namespace TerrainHeatmap
         {
             HeatmapGenerator generator = new HeatmapGenerator();
 
-            generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, GetComponent<Terrain>(), null, this.transform.position);
+            Terrain t = GetComponent<Terrain>();
+
+            generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, t, null, this.transform.position);
+
+            t.terrainData.splatPrototypes = SelectedHeatmap.splatPrototypes;
+            t.terrainData.SetAlphamaps(0, 0, SelectedHeatmap.alphaMapData);
         }
 
 
@@ -242,6 +247,10 @@ namespace TerrainHeatmap
             HorizontalLine();
 
             AddRemoveHeatmapButtons();
+
+            HorizontalLine();
+
+            DisplayGenerateHeatmapButton();
 
             UpdateSceneViewIfNeeded();
 
@@ -554,6 +563,11 @@ namespace TerrainHeatmap
         {
             _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.RemoveAt(_selectedTextureGrid);
             _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Insert(_selectedTextureGrid,newSplatPrototype);
+        }
+
+        void DisplayGenerateHeatmapButton()
+        {
+            if (GUILayout.Button("Generate Heatmap")) _heatmapController.GenerateHeatmap();
         }
 
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Texture2D _albedo, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
