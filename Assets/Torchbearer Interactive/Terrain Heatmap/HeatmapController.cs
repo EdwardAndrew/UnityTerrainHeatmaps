@@ -181,7 +181,7 @@ namespace TerrainHeatmap
 
         private void OnDrawGizmos()
         {
-            if(DisplayDataPointGizmos)
+            if(DisplayHeatmap && DisplayDataPointGizmos)
             {
                 Gizmos.color = DataPointGizmoColor;
                 Terrain t = GetComponent<Terrain>();
