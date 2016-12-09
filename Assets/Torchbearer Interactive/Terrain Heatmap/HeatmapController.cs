@@ -274,10 +274,15 @@ namespace TerrainHeatmap
 
         void ReferenceTerrainObjectField()
         {
+            GUILayout.BeginHorizontal();
             EditorGUI.BeginChangeCheck();
             _heatmapController.referenceTerrainObject = (Terrain)EditorGUILayout.ObjectField("Reference Terrain", _heatmapController.referenceTerrainObject, typeof(Terrain), true);
             EditorGUI.EndChangeCheck();
             if (GUI.changed) _heatmapController.RefreshReferenceTerrainObject();
+
+            if (GUILayout.Button("Refresh", GUILayout.Width(60.0f))) _heatmapController.RefreshReferenceTerrainObject(); 
+
+            GUILayout.EndHorizontal();
         }
 
         void DisplayReferenceTerrainObjectToggle()
