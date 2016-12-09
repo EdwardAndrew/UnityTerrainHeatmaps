@@ -165,17 +165,17 @@ namespace TerrainHeatmap
 
             _terrain = GetComponent<Terrain>();
 
-            _terrainData = referenceTerrainObject.terrainData != null ? new TerrainData() : null;
+            _terrainData = _terrain.terrainData != null ? _terrain.terrainData : new TerrainData();
 
-            if (_terrainData != null)
+            if (referenceTerrainObject.terrainData != null)
             {
                 _terrainData.heightmapResolution = referenceTerrainObject.terrainData.heightmapResolution;
                 _terrainData.SetHeights(0, 0, referenceTerrainObject.terrainData.GetHeights(0, 0, referenceTerrainObject.terrainData.heightmapResolution, referenceTerrainObject.terrainData.heightmapResolution));
-
-
                 _terrainData.size = referenceTerrainObject.terrainData.size;
+
                 _terrain.GetComponent<TerrainCollider>().terrainData = _terrainData;
                 _terrain.terrainData = _terrainData;
+
             }
         }
 
