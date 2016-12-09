@@ -305,7 +305,7 @@ namespace TerrainHeatmap
             }
 
             EditorGUI.BeginChangeCheck();
-            EditorGUILayout.LabelField("" + (_heatmapController.SelectedHeatmapIndex + 1), GUILayout.Width(20.0f + 10.0f * (_heatmapController.HeatmapCount / 10)));
+            EditorGUILayout.LabelField("" + (_heatmapController.SelectedHeatmapIndex + 1), GUILayout.Width(40.0f));
             EditorGUI.EndChangeCheck();
 
             if (GUILayout.Button(">", GUILayout.Width(20.0f)))
