@@ -124,10 +124,28 @@ namespace TerrainHeatmap
 
             Terrain t = GetComponent<Terrain>();
 
-            generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, t, null, this.transform.position);
+            generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, t, GetCustomDataPointArray(), this.transform.position);
 
             t.terrainData.splatPrototypes = SelectedHeatmap.splatPrototypes;
             t.terrainData.SetAlphamaps(0, 0, SelectedHeatmap.alphaMapData);
+        }
+
+        HeatmapNode[] GetCustomDataPointArray()
+        {
+            HeatmapNode[] customDataPoints = FindObjectsOfType<HeatmapNode>();
+            List<HeatmapNode> returnedPoints = new List<HeatmapNode>();
+
+            for (int i = 0; i < customDataPoints.Length; i++)
+            {
+                if (customDataPoints[i].filter == SelectedHeatmap.filter) returnedPoints.Add(customDataPoints[i]);
+            }
+
+            foreach(HeatmapNode node in returnedPoints)
+            {
+                node.UpdatePosition();
+            }
+
+            return returnedPoints.ToArray();
         }
 
 
