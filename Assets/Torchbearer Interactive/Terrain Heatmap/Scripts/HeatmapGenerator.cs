@@ -364,15 +364,11 @@ namespace TerrainHeatmap
         //        {
         //            float resScaleFactorX = terrainObjectSize.x / dataTexture.DataTextureResolution;
         //            float resScaleFactorZ = terrainObjectSize.z / dataTexture.DataTextureResolution;
-
         //            Vector3 nodeLocation = new Vector3((int)(y * resScaleFactorZ / (terrainObjectSize.z / 512)), 0.0f, (int)(x * resScaleFactorX / (terrainObjectSize.x / 512)));
-
         //            float nodeValue = terrainObject.terrainData.GetSteepness(nodeLocation.x / terrainObjectSize.x, nodeLocation.z / terrainObjectSize.z);
-
         //            returnVal[x, y] = new VisualisationTextureDatum(nodeLocation, nodeValue, TBUtilities.TB_Terrain.WorldToTerrainCoords(nodeLocation, terrainObjectSize, alphaMapResolution));
         //        }
         //    }
-
         //    return returnVal;
         //}
 
