@@ -300,6 +300,7 @@ namespace TerrainHeatmap
         private void OnDestroy()
         {
             DisableEditorUpdates();
+            StopAllCoroutines();
         }
 
         void DisableEditorUpdates()
