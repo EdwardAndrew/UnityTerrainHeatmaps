@@ -292,7 +292,14 @@ namespace TerrainHeatmap
         {
             while(true)
             {
-                
+                bool isEditorMode = false;
+
+                #if UNITY_EDITOR
+                    isEditorMode = true;
+                #endif
+
+
+
                 yield return null;
             }
         }
