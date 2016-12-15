@@ -390,7 +390,7 @@ namespace TerrainHeatmap
             {
                 for (int y = 0; y <= dataTexture.heatmapResolution; y++)
                 {
-                    returnVal[x, y] = new HeatmapDatum();
+                    returnVal[x, y] = ScriptableObject.CreateInstance<HeatmapDatum>();
                     returnVal[x, y].value = dataTexture.baseValue;
                     returnVal[x, y].nodePosition = new Vector3((int)(x * alphaMapDividedByDataTextureResolution), 0.0f, (int)(y * alphaMapDividedByDataTextureResolution));
                     returnVal[x, y].terrainCoords = new Pair<int>((int)(x * alphaMapDividedByDataTextureResolution), (int)(y * alphaMapDividedByDataTextureResolution));
