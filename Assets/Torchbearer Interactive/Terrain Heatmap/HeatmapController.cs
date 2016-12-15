@@ -24,6 +24,8 @@ namespace TerrainHeatmap
         [SerializeField]
         bool _initialised = false;
 
+        IEnumerator _realtimeHeatmapUpdate;
+
 
         public int AlphaMapResolution
         {
@@ -84,7 +86,6 @@ namespace TerrainHeatmap
         {
             get
             {
-
                 if (_heatmaps != null) return _heatmaps.Count;
                 else return 0;
             }
@@ -158,7 +159,8 @@ namespace TerrainHeatmap
         // Update is called once per frame
         void Update()
         {
-
+            if (_realtimeHeatmapUpdate == null) _realtimeHeatmapUpdate = RealTimeHeatmapUpdate();
+            _realtimeHeatmapUpdate.MoveNext();
         }
 
 
@@ -222,6 +224,14 @@ namespace TerrainHeatmap
             }
         }
 
+        IEnumerator RealTimeHeatmapUpdate()
+        {
+            while(true)
+            {
+                yield return null;
+            }
+        }
+
 
     }
 
@@ -243,6 +253,13 @@ namespace TerrainHeatmap
             _heatmapController = target is HeatmapController ? target as HeatmapController : null;
 
             if(_heatmapController.Initialised == false) _heatmapController.Initialise();
+
+            if (_heatmapController) EditorApplication.update += _heatmapController.EditorUpdate;
+        }
+
+        void OnDisable()
+        {
+            if (_heatmapController) EditorApplication.update -= _heatmapController.EditorUpdate;
         }
 
 
