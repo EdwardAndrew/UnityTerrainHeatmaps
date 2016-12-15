@@ -100,7 +100,7 @@ namespace TerrainHeatmap
         public void Initialise()
         {
             _heatmaps = new List<Heatmap>();
-            _heatmaps.Add(new Heatmap("Generated Default Heatmap"));
+            AddNewHeatmap();
 
             GenerateHeatmap();
 
