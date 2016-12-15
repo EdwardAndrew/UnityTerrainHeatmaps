@@ -280,26 +280,36 @@ namespace TerrainHeatmap
                         Vector3 gizmoPosition = new Vector3(x * mapDataDistanceX, 0.0f, z * mapDataDistanceZ);
                         gizmoPosition.y = t.SampleHeight(gizmoPosition);
 
-                        Gizmos.DrawWireCube(gizmoPosition + this.transform.position, Vector3.one);
-                        
+                        Gizmos.DrawWireCube(gizmoPosition + this.transform.position, Vector3.one);                   
                     }
                 }
-
             }
         }
 
         IEnumerator RealTimeHeatmapUpdate()
         {
-            while(true)
+            while(true) 
             {
                 bool isEditorMode = false;
+                bool isUpdateEnabled = false;
 
                 #if UNITY_EDITOR
                     isEditorMode = true;
                 #endif
 
+                if (isEditorMode && (EditorApplication.isPlaying && RealTimeUpdateEnabled)) isUpdateEnabled = true;
+                else if (isEditorMode && ((!EditorApplication.isPlaying) && RealTimeEditorUpdateEnabled)) isUpdateEnabled = true;
+                else if (isEditorMode == false && RealTimeUpdateEnabled) isUpdateEnabled = true;
 
-
+                if(isUpdateEnabled)
+                {
+                    Debug.Log("Update!");
+                }
+                else
+                {
+                    if (isEditorMode) yield return new WaitForSecondsRealtime(2.0f);
+                    else if (isEditorMode == false) yield return new WaitForSeconds(2.0f);
+                }
                 yield return null;
             }
         }
