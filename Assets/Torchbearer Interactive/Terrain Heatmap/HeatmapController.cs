@@ -350,6 +350,12 @@ namespace TerrainHeatmap
 
             DisplayDataPointGizmos();
 
+            HorizontalLine();
+
+            RealTimeUpdateGUI();
+
+            HorizontalLine();
+
             SelectHeatmapButtons();
 
             HorizontalLine();
@@ -388,6 +394,43 @@ namespace TerrainHeatmap
 
             if (GUILayout.Button("Refresh", GUILayout.Width(60.0f))) _heatmapController.RefreshReferenceTerrainObject(); 
 
+            GUILayout.EndHorizontal();
+        }
+
+        void RealTimeUpdateGUI()
+        {
+            GUILayout.BeginHorizontal();
+                DisplayRealTimeUpdateEnabledToggle();
+                DisplayRealTimeEditorUpdateEnabledToggle();
+            GUILayout.EndHorizontal();
+            DisplayRealTimeUpdateChunks();
+            DisplayRealTimeUpdateInterval();
+        }
+
+        void DisplayRealTimeUpdateEnabledToggle()
+        {
+            _heatmapController.RealTimeUpdateEnabled =  EditorGUILayout.Toggle("Real Time Updates",_heatmapController.RealTimeUpdateEnabled);
+        }
+
+        void DisplayRealTimeEditorUpdateEnabledToggle()
+        {
+            _heatmapController.RealTimeEditorUpdateEnabled = EditorGUILayout.Toggle("Editor Updates", _heatmapController.RealTimeEditorUpdateEnabled);
+        }
+
+        void DisplayRealTimeUpdateInterval()
+        {
+            GUILayout.BeginHorizontal();
+            _heatmapController.RealTimeUpdateInterval = EditorGUILayout.FloatField("Update Interval" ,_heatmapController.RealTimeUpdateInterval);
+            GUILayout.EndHorizontal();
+        }
+
+        void DisplayRealTimeUpdateChunks()
+        {
+            GUILayout.BeginHorizontal();
+                GUILayout.Label("Real Time Update Chunks");
+                if (GUILayout.Button("<", GUILayout.Width(20.0f))) _heatmapController.RealTimeUpdateChunks /= 2;
+                GUILayout.Label(""+_heatmapController.RealTimeUpdateChunks, GUILayout.Width(40.0f));
+                if(GUILayout.Button(">", GUILayout.Width(20.0f))) _heatmapController.RealTimeUpdateChunks *=2;
             GUILayout.EndHorizontal();
         }
 
