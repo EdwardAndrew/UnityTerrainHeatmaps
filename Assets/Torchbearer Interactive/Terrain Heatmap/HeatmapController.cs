@@ -216,14 +216,21 @@ namespace TerrainHeatmap
         // Update is called once per frame
         void Update()
         {
-            if (_realtimeHeatmapUpdate == null) _realtimeHeatmapUpdate = RealTimeHeatmapUpdate();
-            _realtimeHeatmapUpdate.MoveNext();
+            if (_realTimeUpdateEnabled)
+            {
+                if (_realtimeHeatmapUpdate == null) _realtimeHeatmapUpdate = RealTimeHeatmapUpdate();
+                _realtimeHeatmapUpdate.MoveNext(); 
+            }
         }
 
 
         public void EditorUpdate()
         {
-            Update();
+            if (_realTimeEditorUpdateEnabled)
+            {
+                if (_realtimeHeatmapUpdate == null) _realtimeHeatmapUpdate = RealTimeHeatmapUpdate();
+                _realtimeHeatmapUpdate.MoveNext(); 
+            }
         }
 
         public void ToggleDisplayReferenceObject(bool showObject = false)
