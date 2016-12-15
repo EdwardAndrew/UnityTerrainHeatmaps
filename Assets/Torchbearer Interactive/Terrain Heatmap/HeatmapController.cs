@@ -24,7 +24,15 @@ namespace TerrainHeatmap
         [SerializeField]
         bool _initialised = false;
 
+        bool _editorUpdateInitialised = false;
+
         IEnumerator _realtimeHeatmapUpdate;
+
+        public bool EditorUpdateInitialised
+        {
+            get { return _editorUpdateInitialised; }
+            set { _editorUpdateInitialised = value; }
+        }
 
 
         public int AlphaMapResolution
@@ -228,8 +236,21 @@ namespace TerrainHeatmap
         {
             while(true)
             {
+                
                 yield return null;
             }
+        }
+
+        private void OnDestroy()
+        {
+            DisableEditorUpdates();
+        }
+
+        void DisableEditorUpdates()
+        {
+            #if UNITY_EDITOR
+            EditorApplication.update -= EditorUpdate;
+            #endif
         }
 
 
@@ -252,16 +273,17 @@ namespace TerrainHeatmap
 
             _heatmapController = target is HeatmapController ? target as HeatmapController : null;
 
-            if(_heatmapController.Initialised == false) _heatmapController.Initialise();
+            if (_heatmapController && _heatmapController.Initialised == false)
+            {
+                _heatmapController.Initialise();
 
-            if (_heatmapController) EditorApplication.update += _heatmapController.EditorUpdate;
+            }
+            if (_heatmapController && _heatmapController.EditorUpdateInitialised == false)
+            {
+                EditorApplication.update += _heatmapController.EditorUpdate;
+                _heatmapController.EditorUpdateInitialised = true;
+            }
         }
-
-        void OnDisable()
-        {
-            if (_heatmapController) EditorApplication.update -= _heatmapController.EditorUpdate;
-        }
-
 
         public override void OnInspectorGUI()
         {
