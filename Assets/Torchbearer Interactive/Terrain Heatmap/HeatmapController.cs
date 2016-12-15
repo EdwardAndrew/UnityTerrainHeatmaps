@@ -34,6 +34,55 @@ namespace TerrainHeatmap
             set { _editorUpdateInitialised = value; }
         }
 
+        [SerializeField]
+        bool _realTimeUpdateEnabled = false;
+        public bool RealTimeUpdateEnabled
+        {
+            get { return _realTimeUpdateEnabled; }
+            set { _realTimeUpdateEnabled = value; } 
+        }
+
+        [SerializeField]
+        bool _realTimeEditorUpdateEnabled = false;
+        public bool RealTimeEditorUpdateEnabled
+        {
+            get { return _realTimeEditorUpdateEnabled; }
+            set { _realTimeEditorUpdateEnabled = value; }
+        }
+
+        [SerializeField]
+        int _realTimeUpdateChunks = 2;
+        public int RealTimeUpdateChunks
+        {
+            get { return _realTimeUpdateChunks; }
+            set { 
+                    
+                    for(int i = 1, previousI = 1; i < 2048; previousI = i,i*=2)
+                    {
+                        if( i == value ) 
+                        {
+                            _realTimeUpdateChunks = value;
+                            return;
+                        }
+                        else if( value < i )
+                        {
+                            _realTimeUpdateChunks = previousI;
+                            return;
+                        }
+                    }
+                
+                 _realTimeUpdateChunks = 2048; 
+
+            }
+        }
+
+        [SerializeField]
+        float _realTimeUpdateInterval = 0.5f;
+        public float RealTimeUpdateInterval
+        {
+            get { return _realTimeUpdateInterval; }
+            set { _realTimeUpdateInterval = Mathf.Abs(value); }
+        }
 
         public int AlphaMapResolution
         {
