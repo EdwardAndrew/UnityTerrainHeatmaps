@@ -164,7 +164,7 @@ namespace TerrainHeatmap
 
         public void EditorUpdate()
         {
-            
+            Update();
         }
 
         public void ToggleDisplayReferenceObject(bool showObject = false)
