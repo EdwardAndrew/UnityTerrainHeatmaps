@@ -28,6 +28,8 @@ namespace TerrainHeatmap
 
         IEnumerator _realtimeHeatmapUpdate;
 
+        float _lastRealTimeUpdate = 0.0f;
+
         public bool EditorUpdateInitialised
         {
             get { return _editorUpdateInitialised; }
@@ -303,7 +305,34 @@ namespace TerrainHeatmap
 
                 if(isUpdateEnabled)
                 {
-                    Debug.Log("Update!");
+                    bool hasUpdatedIntervalElapsed = false;
+
+                    if(isEditorMode && EditorApplication.isPlaying)
+                    {
+                        hasUpdatedIntervalElapsed = Time.time - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false;
+                    }
+                    else if(isEditorMode && !EditorApplication.isPlaying)
+                    {
+                        hasUpdatedIntervalElapsed = Time.realtimeSinceStartup - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false;
+                    }
+                    else if(!isEditorMode)
+                    {
+                        hasUpdatedIntervalElapsed = Time.time - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false;
+                    }
+
+                    if(hasUpdatedIntervalElapsed)
+                    {
+
+                        if(isEditorMode && !EditorApplication.isPlaying)
+                        {
+                            _lastRealTimeUpdate = Time.realtimeSinceStartup;
+                        }
+                        else
+                        {
+                            _lastRealTimeUpdate = Time.time;
+                        }
+                    }
+
                 }
                 else
                 {
