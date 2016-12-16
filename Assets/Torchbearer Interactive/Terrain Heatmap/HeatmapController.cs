@@ -474,7 +474,7 @@ namespace TerrainHeatmap
         void DisplayRealTimeUpdateInterval()
         {
             GUILayout.BeginHorizontal();
-            _heatmapController.RealTimeUpdateInterval = EditorGUILayout.FloatField("Update Interval" ,_heatmapController.RealTimeUpdateInterval);
+            _heatmapController.RealTimeUpdateInterval = EditorGUILayout.FloatField("Update Interval (s)" ,_heatmapController.RealTimeUpdateInterval);
             GUILayout.EndHorizontal();
         }
 
