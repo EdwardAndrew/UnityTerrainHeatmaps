@@ -93,6 +93,7 @@ namespace TerrainHeatmap
             {
                 return;
             }
+            if (terrain.terrainData == null) return;
             float[,] heights = terrain.terrainData.GetHeights(0, 0, terrain.terrainData.heightmapResolution, terrain.terrainData.heightmapResolution);
             GenerateHeatMap(selectedTextureIndex, ref visualisationTextures, terrain.terrainData.alphamapResolution, terrain.terrainData.size, 0, 0, terrain.terrainData.alphamapResolution, terrain.terrainData.alphamapResolution, heights, terrain.terrainData.heightmapScale, true, customDataList, positionOffset);
         }

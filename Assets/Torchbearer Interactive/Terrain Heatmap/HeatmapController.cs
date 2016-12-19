@@ -346,7 +346,7 @@ namespace TerrainHeatmap
                         HeatmapNode[] customDataArray = null;
                         int selectedHeatmap = SelectedHeatmapIndex;
 
-                        if (SelectedHeatmap.texSource == TextureSource.Custom)
+                        if (SelectedHeatmap.dataType == HeatmapData.Custom)
                         {
                             customDataArray = GetCustomDataPointArray();
                         }
