@@ -307,27 +307,31 @@ namespace TerrainHeatmap
                 bool isEditorMode = false;
                 bool isUpdateEnabled = false;
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                     isEditorMode = true;
-                #endif
+#endif
 
-                if (isEditorMode && (EditorApplication.isPlaying && RealTimeUpdateEnabled)) isUpdateEnabled = true;
+                if (isEditorMode) 
+                {
+                #if UNITY_EDITOR
+                    if (EditorApplication.isPlaying && RealTimeUpdateEnabled) isUpdateEnabled = true;
                 else if (isEditorMode && ((!EditorApplication.isPlaying) && RealTimeEditorUpdateEnabled)) isUpdateEnabled = true;
+                #endif
+                }
                 else if (isEditorMode == false && RealTimeUpdateEnabled) isUpdateEnabled = true;
 
                 if(isUpdateEnabled)
                 {
                     bool hasUpdatedIntervalElapsed = false;
 
-                    if(isEditorMode && EditorApplication.isPlaying)
+                    if(isEditorMode)
                     {
-                        hasUpdatedIntervalElapsed = Time.time - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false;
+#if UNITY_EDITOR
+                        if (isEditorMode && EditorApplication.isPlaying) hasUpdatedIntervalElapsed = Time.time - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false;
+                        if (isEditorMode && !EditorApplication.isPlaying) hasUpdatedIntervalElapsed = Time.realtimeSinceStartup - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false; 
+#endif
                     }
-                    else if(isEditorMode && !EditorApplication.isPlaying)
-                    {
-                        hasUpdatedIntervalElapsed = Time.realtimeSinceStartup - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false;
-                    }
-                    else if(!isEditorMode)
+                    else
                     {
                         hasUpdatedIntervalElapsed = Time.time - _lastRealTimeUpdate >= RealTimeUpdateInterval ? true : false;
                     }
@@ -395,7 +399,11 @@ namespace TerrainHeatmap
                             if (SelectedHeatmapIndex != selectedHeatmap) break;
                         }
 
-                        _lastRealTimeUpdate = (isEditorMode && !EditorApplication.isPlaying) ? Time.realtimeSinceStartup : Time.time;
+
+                         _lastRealTimeUpdate =  Time.time;
+#if UNITY_EDITOR
+                        if (isEditorMode && !EditorApplication.isPlaying) _lastRealTimeUpdate = Time.realtimeSinceStartup; 
+#endif
 
                     }
 
