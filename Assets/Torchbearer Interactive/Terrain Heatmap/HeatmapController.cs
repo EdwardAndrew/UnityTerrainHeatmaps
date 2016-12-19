@@ -244,6 +244,7 @@ namespace TerrainHeatmap
 
         void CheckActiveInactiveTerrainComponents()
         {
+            if (this == null) return;
             if (GetComponent<Terrain>() == null) return;
             if (referenceTerrainObject == null) return;
             
