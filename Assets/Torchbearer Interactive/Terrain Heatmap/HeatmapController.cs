@@ -24,11 +24,15 @@ namespace TerrainHeatmap
         [SerializeField]
         bool _initialised = false;
 
+        HeatmapGenerator Generator;
+
         bool _editorUpdateInitialised = false;
 
         IEnumerator _realtimeHeatmapUpdate;
 
         float _lastRealTimeUpdate = 0.0f;
+
+        float _realTimeUpdateThreadTimeout = 3.0f;
 
         public bool EditorUpdateInitialised
         {
@@ -180,11 +184,12 @@ namespace TerrainHeatmap
 
         public void GenerateHeatmap()
         {
-            HeatmapGenerator generator = new HeatmapGenerator();
+
+            Generator = Generator == null ? new HeatmapGenerator() : Generator;
 
             Terrain t = GetComponent<Terrain>();
 
-            generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, t, GetCustomDataPointArray(), this.transform.position);
+            Generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, t, GetCustomDataPointArray(), this.transform.position);
 
             t.terrainData.splatPrototypes = SelectedHeatmap.splatPrototypes;
             t.terrainData.SetAlphamaps(0, 0, SelectedHeatmap.alphaMapData);
@@ -322,15 +327,69 @@ namespace TerrainHeatmap
 
                     if(hasUpdatedIntervalElapsed)
                     {
+                        Generator = Generator == null ? new HeatmapGenerator() : Generator;
 
-                        if(isEditorMode && !EditorApplication.isPlaying)
+                        int chunkSize = (int)(_terrainData.alphamapResolution / RealTimeUpdateChunks);
+                        int splatPrototypeLength = 0;
+                        HeatmapNode[] customDataArray = null;
+                        int selectedHeatmap = SelectedHeatmapIndex;
+
+                        if (SelectedHeatmap.texSource == TextureSource.Custom)
                         {
-                            _lastRealTimeUpdate = Time.realtimeSinceStartup;
+                            customDataArray = GetCustomDataPointArray();
                         }
-                        else
+                        for (int x = 0; x < RealTimeUpdateChunks; x++)
                         {
-                            _lastRealTimeUpdate = Time.time;
+                            for (int y = 0; y < RealTimeUpdateChunks; y++)
+                            {
+                                float threadStartTime = Time.realtimeSinceStartup;
+                                bool abortLoop = false;
+
+                                if (SelectedHeatmap.splatPrototypes == null || (splatPrototypeLength != SelectedHeatmap.splatPrototypes.Length))
+                                {
+                                    GenerateHeatmap();
+                                }
+
+                                splatPrototypeLength = SelectedHeatmap.splatPrototypes.Length;
+
+                                Vector3 position = transform.position;
+
+
+                                Generator.ProcessHeatMapThreaded(selectedHeatmap, ref _heatmaps, _terrainData.GetHeights(0, 0, _terrainData.heightmapResolution, _terrainData.heightmapResolution), _terrainData.alphamapResolution, _terrainData.size, _terrain.terrainData.heightmapScale, y * chunkSize, x * chunkSize, chunkSize, chunkSize, customDataArray, position);
+
+                                while (Generator.isGenerateHeatMapThreadFinished == false)
+                                {
+                                    if (Time.realtimeSinceStartup - threadStartTime >= _realTimeUpdateThreadTimeout)
+                                    {
+                                        Generator.Abort();
+                                        abortLoop = true;
+                                        break;
+                                    }
+                                    yield return null;
+                                }
+
+                                if (abortLoop) continue;
+                                if (!DisplayHeatmap) continue;
+
+                                if (SelectedHeatmap.splatPrototypes.Length != splatPrototypeLength) continue;
+                                if (SelectedHeatmap.splatPrototypes.Length != -Generator.processedAlphaMap.GetLength(2)) continue;
+                                if (selectedHeatmap != SelectedHeatmapIndex) continue;
+
+                                _terrain.terrainData.splatPrototypes = SelectedHeatmap.splatPrototypes;
+                                _terrain.terrainData.SetAlphamaps(x * chunkSize, y * chunkSize, Generator.processedAlphaMap);
+
+                                while(Time.realtimeSinceStartup - threadStartTime < RealTimeUpdateInterval)
+                                {
+                                    yield return null;
+                                }
+
+                                if (SelectedHeatmapIndex != selectedHeatmap) break;
+                            }
+                            if (SelectedHeatmapIndex != selectedHeatmap) break;
                         }
+
+                        _lastRealTimeUpdate = (isEditorMode && !EditorApplication.isPlaying) ? Time.realtimeSinceStartup : Time.time;
+
                     }
 
                 }
@@ -342,6 +401,7 @@ namespace TerrainHeatmap
                 yield return null;
             }
         }
+
 
         private void OnDestroy()
         {

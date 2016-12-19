@@ -345,7 +345,7 @@ namespace TerrainHeatmap
                     float nodeValue = heightMap[(int)nodeLocation.z, (int)nodeLocation.x] * heightMapScale.y;
 
 
-                    returnVal[x, y] = ScriptableObject.CreateInstance<HeatmapDatum>();
+                    returnVal[x, y] = new HeatmapDatum();
                     returnVal[x, y].Init(nodeLocation, nodeValue, Coordinates.WorldToTerrainCoords(nodeLocation, terrainObjectSize, alphaMapResolution));
                 }
             }
@@ -386,7 +386,7 @@ namespace TerrainHeatmap
             {
                 for (int y = 0; y <= dataTexture.heatmapResolution; y++)
                 {
-                    returnVal[x, y] = ScriptableObject.CreateInstance<HeatmapDatum>();
+                    returnVal[x, y] = new HeatmapDatum();
                     returnVal[x, y].value = dataTexture.baseValue;
                     returnVal[x, y].nodePosition = new Vector3((int)(x * alphaMapDividedByDataTextureResolution), 0.0f, (int)(y * alphaMapDividedByDataTextureResolution));
                     returnVal[x, y].terrainCoords = new Pair<int>((int)(x * alphaMapDividedByDataTextureResolution), (int)(y * alphaMapDividedByDataTextureResolution));
@@ -438,7 +438,7 @@ namespace TerrainHeatmap
 
 
                 // Using the terrain Coordinates, create the Datum that we're going to store in the Array.
-                HeatmapDatum textureDatum = ScriptableObject.CreateInstance<HeatmapDatum>();
+                HeatmapDatum textureDatum = new HeatmapDatum();
                 textureDatum.Init(closetMapPointPosition, value, new Pair<int>((int)textureCoordianates.x, (int)textureCoordianates.y));
 
                 // Assign the VisualisationTextureDatum to the correct Index in the Array.

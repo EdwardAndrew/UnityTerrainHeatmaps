@@ -13,27 +13,18 @@ using TBUnityLib.Generic;
 namespace TerrainHeatmap
 {
     // Node for storing heatMapData.
-    public class HeatmapDatum : ScriptableObject
+    public class HeatmapDatum
     {
 
         public Vector3 nodePosition;
         public float value;
         public Pair<int> terrainCoords;
-        public string filter;
 
-        public void Init(Vector3 nodePos, float val, Pair<int> terrainCoords, string filter)
-        {
-            this.value = val;
-            this.nodePosition = nodePos;
-            this.terrainCoords = terrainCoords;
-            this.filter = filter;
-        }
         public void Init(Vector3 nodePos, float val, Pair<int> terrainCoords)
         {
             this.value = val;
             this.nodePosition = nodePos;
             this.terrainCoords = terrainCoords;
-            this.filter = "";
         }
 
         public void Init(Vector3 nodePos, float val, Vector2 terrainCoords)
