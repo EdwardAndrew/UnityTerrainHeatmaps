@@ -406,12 +406,6 @@ namespace TerrainHeatmap
                     if (arrayPositionX >= 0 && arrayPositionY >= 0 && arrayPositionX < dataTexture.heatmapResolution && arrayPositionY < dataTexture.heatmapResolution)
                     {
                         value = customDatum.value * brushOpacity + returnVal[arrayPositionX, arrayPositionY].value;
-
-                        if (returnVal[arrayPositionX, arrayPositionY].value != dataTexture.baseValue)
-                        {
-                            float difference = returnVal[arrayPositionX, arrayPositionY].value - value;
-                            value += difference / 2;
-                        }
                     }
                 }
 
