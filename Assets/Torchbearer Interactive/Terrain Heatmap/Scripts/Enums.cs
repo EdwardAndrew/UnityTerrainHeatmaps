@@ -13,7 +13,6 @@ namespace TerrainHeatmap
     public enum HeatmapData
     {
         HeightMap,
-        Steepness,
         Custom
     }
 

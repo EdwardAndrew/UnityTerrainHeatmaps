@@ -314,9 +314,6 @@ namespace TerrainHeatmap
                     TerrainHeightToVisualisationTextureData(dataTexture, terrainObjectSize, alphaMapResolution, heightMap, heightMapScale);
                     break;
 
-                //case (VisualisationData.Steepness):
-                //    return TerrainSteepnessToVisualisationTextureData(dataTexture,terrainObjectSize,alphaMapResolution);
-
                 case (HeatmapData.Custom):
 
                     CustomDataToVisualisationTextureData(dataTexture, customDataList, false, terrainObjectSize, alphaMapResolution, positionOffset);
@@ -354,24 +351,6 @@ namespace TerrainHeatmap
             dataTexture.mapData = returnVal;
         }
 
-        //// Generate heatmap data from the Terrain's steepness.
-        //VisualisationTextureDatum[,] TerrainSteepnessToVisualisationTextureData(VisualisationTexture dataTexture,  Vector3 terrainObjectSize, int alphaMapResolution)
-        //{
-        //    VisualisationTextureDatum[,] returnVal = new VisualisationTextureDatum[dataTexture.DataTextureResolution + 1, dataTexture.DataTextureResolution + 1];
-
-        //    for (int x = 0; x <= dataTexture.DataTextureResolution; x++)
-        //    {
-        //        for (int y = 0; y <= dataTexture.DataTextureResolution; y++)
-        //        {
-        //            float resScaleFactorX = terrainObjectSize.x / dataTexture.DataTextureResolution;
-        //            float resScaleFactorZ = terrainObjectSize.z / dataTexture.DataTextureResolution;
-        //            Vector3 nodeLocation = new Vector3((int)(y * resScaleFactorZ / (terrainObjectSize.z / 512)), 0.0f, (int)(x * resScaleFactorX / (terrainObjectSize.x / 512)));
-        //            float nodeValue = terrainObject.terrainData.GetSteepness(nodeLocation.x / terrainObjectSize.x, nodeLocation.z / terrainObjectSize.z);
-        //            returnVal[x, y] = new VisualisationTextureDatum(nodeLocation, nodeValue, TBUtilities.TB_Terrain.WorldToTerrainCoords(nodeLocation, terrainObjectSize, alphaMapResolution));
-        //        }
-        //    }
-        //    return returnVal;
-        //}
 
 
         void CustomDataToVisualisationTextureData(Heatmap dataTexture, HeatmapNode[] customData, bool addCloseValues, Vector3 terrainSize, int alphaMapResolution, Vector3 positionOffset)
