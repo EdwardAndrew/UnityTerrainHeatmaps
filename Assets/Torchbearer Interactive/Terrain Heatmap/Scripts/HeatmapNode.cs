@@ -30,9 +30,6 @@ namespace TerrainHeatmap
         [Tooltip("If this is checked, then the values of this node will overwrite all other values.")]
         public bool overwriteOtherNodeValues = false;
 
-        [Tooltip("If this is checked, the brush will be circular, otherwise the brush will be square.")]
-        public bool circularBrush = true;
-
         [Tooltip("Make this Data node specific to a filter.")]
         public string filter = "";
 

@@ -457,86 +457,39 @@ namespace TerrainHeatmap
                     // We must have at least 2 steps outwards to be able to define a brush.
                     if (diameter > 0)
                     {
-                        if (customDatum.circularBrush)
+                        int radius = diameter / 2;
+                        int radiusSquared = radius * radius;
+
+                        for (int x = -radius; x < +radius; x++)
                         {
-                            int radius = diameter / 2;
-                            int radiusSquared = radius * radius;
-
-                            for (int x = -radius; x < +radius; x++)
+                            for (int y = -radius; y < +radius; y++)
                             {
-                                for (int y = -radius; y < +radius; y++)
+                                int arryPosX = arrayPositionX + x;
+                                int arryPosY = arrayPositionY + y;
+
+                                if (arryPosX == arrayPositionX && arryPosY == arrayPositionY) continue;
+
+                                if (arryPosX >= 0 && arryPosY >= 0 && arryPosX < dataTexture.heatmapResolution && arryPosY < dataTexture.heatmapResolution)
                                 {
-                                    int arryPosX = arrayPositionX + x;
-                                    int arryPosY = arrayPositionY + y;
+                                    int dx = arryPosX - arrayPositionX;
+                                    int dy = arryPosY - arrayPositionY;
 
-                                    if (arryPosX == arrayPositionX && arryPosY == arrayPositionY) continue;
+                                    float distanceSquared = (dx * dx) + (dy * dy);
 
-                                    if (arryPosX >= 0 && arryPosY >= 0 && arryPosX < dataTexture.heatmapResolution && arryPosY < dataTexture.heatmapResolution)
+                                    if (distanceSquared <= radiusSquared)
                                     {
-                                        int dx = arryPosX - arrayPositionX;
-                                        int dy = arryPosY - arrayPositionY;
+                                        float brushHardnessModifier = radiusSquared - (distanceSquared * (1.0f - brushHardness));
+                                        brushHardnessModifier /= radiusSquared;
 
-                                        float distanceSquared = (dx * dx) + (dy * dy);
-
-                                        if (distanceSquared <= radiusSquared)
+                                        if (!customDatum.overwriteOtherNodeValues)
                                         {
-                                            float brushHardnessModifier = radiusSquared - (distanceSquared * (1.0f - brushHardness));
-                                            brushHardnessModifier /= radiusSquared;
-
-                                            if (!customDatum.overwriteOtherNodeValues)
-                                            {
-                                                returnVal[arryPosX, arryPosY].value += (brushHardnessModifier * customDatum.value) * brushOpacity;
-                                            }
-                                            else
-                                            {
-                                                returnVal[arryPosX, arryPosY].value = (brushHardnessModifier * customDatum.value) * brushOpacity;
-                                            }
+                                            returnVal[arryPosX, arryPosY].value += (brushHardnessModifier * customDatum.value) * brushOpacity;
+                                        }
+                                        else
+                                        {
+                                            returnVal[arryPosX, arryPosY].value = (brushHardnessModifier * customDatum.value) * brushOpacity;
                                         }
                                     }
-                                }
-                            }
-
-                        }
-                        else
-                        {
-                            for (int i = -diameter / 2; i < diameter / 2; i++)
-                            {
-                                for (int j = -diameter / 2; j < diameter / 2; j++)
-                                {
-                                    // Calculate the position of the array of this node.
-                                    int arryPosX = arrayPositionX + j;
-                                    int arryPosY = arrayPositionY + i;
-
-                                    // If the current arrayPosition is out of range of the array, then check the next node.
-                                    if (arryPosX < 0 || arryPosX > dataTexture.heatmapResolution) continue;
-                                    if (arryPosY < 0 || arrayPositionY > dataTexture.heatmapResolution) continue;
-
-                                    // If the node is the centre node (we've already update this node) then continue.
-                                    if (arrayPositionX == arryPosX && arrayPositionY == arryPosY) continue;
-
-
-                                    // Take the highest absolute value from i and j to determine how far we've stepped out from the centre of the brush.
-                                    int currentStepOutwards;
-
-                                    if (Mathf.Abs(i) > Mathf.Abs(j)) currentStepOutwards = Mathf.Abs(i);
-                                    else currentStepOutwards = Mathf.Abs(j);
-
-                                    // Calculate the brush hardness modifier, based on which step we're on and what the value of the brushHardness is.
-                                    float brushHardnessModifier = (diameter / 2) - (currentStepOutwards * (1.0f - brushHardness));
-                                    brushHardnessModifier /= diameter / 2;
-
-                                    // Calculate and assign the value of this node, taking into account the brush hardness modifier, the opacity and the customDatum value.
-                                    if (customDatum.overwriteOtherNodeValues)
-                                    {
-                                        // Assign the value calculated of this node to the correct entry in the array.
-                                        returnVal[arryPosX, arryPosY].value = (brushHardnessModifier * customDatum.value) * brushOpacity;
-                                    }
-                                    else
-                                    {
-                                        // Add the value calculated for this node to the current value (if a current value exists).
-                                        returnVal[arryPosX, arryPosY].value += (brushHardnessModifier * customDatum.value) * brushOpacity;
-                                    }
-
                                 }
                             }
                         }
