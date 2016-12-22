@@ -442,7 +442,7 @@ namespace TerrainHeatmap
 
                                 if (arryPosX == arrayPositionX && arryPosY == arrayPositionY) continue;
 
-                                if (arryPosX >= 0 && arryPosY >= 0 && arryPosX < dataTexture.heatmapResolution && arryPosY < dataTexture.heatmapResolution)
+                                if (arryPosX >= 0 && arryPosY >= 0 && arryPosX <= dataTexture.heatmapResolution && arryPosY <= dataTexture.heatmapResolution)
                                 {
                                     int dx = arryPosX - arrayPositionX;
                                     int dy = arryPosY - arrayPositionY;
