@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using TBUnityLib.TextureTools;
@@ -13,77 +13,145 @@ namespace TerrainHeatmap
     [RequireComponent(typeof(TerrainCollider))]
     public class HeatmapController : MonoBehaviour
     {
+        /// <summary>
+        /// The reference Terrain object.
+        /// </summary>
         public Terrain referenceTerrainObject;
 
-        [SerializeField]
+        /// <summary>
+        /// The HeatmapController's Terrain object.
+        /// </summary>
+        [SerializeField]      
         Terrain _terrain;
 
+        /// <summary>
+        /// The HeatmapController's TerrainData.
+        /// </summary>
         [SerializeField]
         TerrainData _terrainData;
 
+        /// <summary>
+        /// True if the HeatmapController has been initialised.
+        /// </summary>
         [SerializeField]
         bool _initialised = false;
 
+        /// <summary>
+        /// The HeatmapController's HeatmapGenerator object.
+        /// </summary>
         HeatmapGenerator Generator;
 
+        /// <summary>
+        /// True if RealTimeEditor updates have been initialised.
+        /// </summary>
         bool _editorUpdateInitialised = false;
 
+        /// <summary>
+        /// The HeatmapController's RealTimeUpdate Coroutine.
+        /// </summary>
         IEnumerator _realtimeHeatmapUpdate;
 
+        /// <summary>
+        /// The time of the HeatmapController's last RealTimeUpdate.
+        /// </summary>
         float _lastRealTimeUpdate = 0.0f;
 
+        /// <summary>
+        /// How long the HeatmapController should wait while processing a thread before it times out.
+        /// </summary>
         float _realTimeUpdateThreadTimeout = 3.0f;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [editor update initialised].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [editor update initialised]; otherwise, <c>false</c>.
+        /// </value>
         public bool EditorUpdateInitialised
         {
             get { return _editorUpdateInitialised; }
             set { _editorUpdateInitialised = value; }
         }
 
+        /// <summary>
+        /// Returns true if Real Time Updates are Enabled.
+        /// </summary>
         [SerializeField]
         bool _realTimeUpdateEnabled = false;
+        /// <summary>
+        /// Gets or sets a value indicating whether [real time update enabled].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [real time update enabled]; otherwise, <c>false</c>.
+        /// </value>
         public bool RealTimeUpdateEnabled
         {
             get { return _realTimeUpdateEnabled; }
             set { _realTimeUpdateEnabled = value; } 
         }
-
+        /// <summary>
+        /// Returns true if Real Time Updates are enabled in editor mode.
+        /// </summary>
         [SerializeField]
         bool _realTimeEditorUpdateEnabled = false;
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [real time editor update enabled].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [real time editor update enabled]; otherwise, <c>false</c>.
+        /// </value>
         public bool RealTimeEditorUpdateEnabled
         {
             get { return _realTimeEditorUpdateEnabled; }
             set { _realTimeEditorUpdateEnabled = value; }
         }
 
+        /// <summary>
+        /// Multiplier for the number of realTimeUpdateChunks.
+        /// </summary>
         [SerializeField]
-        int _realTimeUpdateChunks = 2;
-        public int RealTimeUpdateChunks
+        int _realTimeUpdateChunksMultiplier = 2;
+        /// <summary>
+        /// Gets or sets the real time update chunks multiplier.
+        /// </summary>
+        /// <value>
+        /// The real time update chunks multiplier.
+        /// </value>
+        public int RealTimeUpdateChunksMultiplier
         {
-            get { return _realTimeUpdateChunks; }
+            get { return _realTimeUpdateChunksMultiplier; }
             set { 
                     
                     for(int i = 1, previousI = 1; i < 2048; previousI = i,i*=2)
                     {
                         if( i == value ) 
                         {
-                            _realTimeUpdateChunks = value;
+                            _realTimeUpdateChunksMultiplier = value;
                             return;
                         }
                         else if( value < i )
                         {
-                            _realTimeUpdateChunks = previousI;
+                            _realTimeUpdateChunksMultiplier = previousI;
                             return;
                         }
                     }
                 
-                 _realTimeUpdateChunks = 2048; 
+                 _realTimeUpdateChunksMultiplier = 2048; 
 
             }
         }
-
+        /// <summary>
+        /// The time in seconds between each Real Time Update.
+        /// </summary>
         [SerializeField]
         float _realTimeUpdateInterval = 0.5f;
+        /// <summary>
+        /// Gets or sets the real time update interval.
+        /// </summary>
+        /// <value>
+        /// The real time update interval.
+        /// </value>
         public float RealTimeUpdateInterval
         {
             get { return _realTimeUpdateInterval; }
@@ -98,53 +166,109 @@ namespace TerrainHeatmap
                 else return 0;
             }
         }
-
+        /// <summary>
+        /// If true, the Heatmap will be displayed and the reference Terrain object will be hidden.
+        /// </summary>
         [SerializeField]
         bool _displayHeatmap;
 
+        /// <summary>
+        /// Gets or sets a value indicating whether [display heatmap].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [display heatmap]; otherwise, <c>false</c>.
+        /// </value>
         public bool DisplayHeatmap
         {
             get { return _displayHeatmap; }
             set { _displayHeatmap = value; }
         }
 
+        /// <summary>
+        /// If true, a gizmo is displayed in the location of each data point.
+        /// </summary>
         [SerializeField]
         bool _displayDataPointGizmos = false;
+        /// <summary>
+        /// Gets or sets a value indicating whether [display data point gizmos].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [display data point gizmos]; otherwise, <c>false</c>.
+        /// </value>
         public bool DisplayDataPointGizmos
         {
             get { return _displayDataPointGizmos; }
             set { _displayDataPointGizmos = value; }
         }
 
+        /// <summary>
+        /// The color of the data point gizmos.
+        /// </summary>
         [SerializeField]
         Color _dataPointGizmosColor = Color.green;
+        /// <summary>
+        /// Gets or sets the color of the data point gizmos.
+        /// </summary>
+        /// <value>
+        /// The color of the data point gizmos.
+        /// </value>
         public Color DataPointGizmoColor
         {
             get { return _dataPointGizmosColor; }
             set { _dataPointGizmosColor = value; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="HeatmapController"/> is initialised.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if initialised; otherwise, <c>false</c>.
+        /// </value>
         public bool Initialised
         {
             get { return _initialised; }
         }
 
+        /// <summary>
+        /// The seledcted Heatmap index.
+        /// </summary>
         [SerializeField]
         int _selectedHeatmapIndex = 0;
 
+        /// <summary>
+        /// Gets or sets the index of the <see cref="_selectedHeatmapIndex"/> 
+        /// </summary>
+        /// <value>
+        /// The index of the selected heatmap.
+        /// </value>
         public int SelectedHeatmapIndex
         {
             get { return _selectedHeatmapIndex; }
             set { _selectedHeatmapIndex = value; }
         }
 
+        /// <summary>
+        /// This <see cref="HeatmapController"/>'s Heatmaps.
+        /// </summary>
         [SerializeField]
         List<Heatmap> _heatmaps;
+        /// <summary>
+        /// Gets the selected <see cref="Heatmap"/>.
+        /// </summary>
+        /// <value>
+        /// The selected <see cref="Heatmap"/>.
+        /// </value>
         public Heatmap SelectedHeatmap
         {
             get { return  _heatmaps != null ? _heatmaps[SelectedHeatmapIndex] : null; }
         }
 
+        /// <summary>
+        /// Gets number of <see cref="Heatmap"/> objects in the <see cref="_heatmaps"/> <see cref="List{T}"/>.
+        /// </summary>
+        /// <value>
+        /// The heatmap count.
+        /// </value>
         public int HeatmapCount
         {
             get
@@ -154,13 +278,21 @@ namespace TerrainHeatmap
             }
         }
 
+        /// <summary>
+        /// Gets or sets this <see cref="HeatmapController"/>'s <see cref="TerrainData.splatPrototypes"/> array.
+        /// </summary>
+        /// <value>
+        /// The <see cref="TerrainData.splatPrototypes"/>.
+        /// </value>
         public SplatPrototype[] Splatprototypes
         {
             get { return _terrainData.splatPrototypes; }
             set { _terrainData.splatPrototypes = value; } 
         }
 
-
+        /// <summary>
+        /// Initialises this instance of the <see cref="HeatmapController"/>.
+        /// </summary>
         public void Initialise()
         {
             _heatmaps = new List<Heatmap>();
@@ -171,17 +303,26 @@ namespace TerrainHeatmap
             _initialised = true;
         }
 
+        /// <summary>
+        /// Adds a new <see cref="Heatmap"/>.
+        /// </summary>
         public void AddNewHeatmap()
         {
             _heatmaps.Add(new Heatmap("Generated Default Heatmap"));
         }
 
+        /// <summary>
+        /// Removes the currently selected <see cref="Heatmap"/> from the <see cref="_heatmaps"/> <see cref="List{T}"/>.
+        /// </summary>
         public void RemoveSelectedHeatmap()
         {
             _heatmaps.RemoveAt(SelectedHeatmapIndex);
             SelectedHeatmapIndex = SelectedHeatmapIndex >= _heatmaps.Count ? _heatmaps.Count - 1 : SelectedHeatmapIndex;
         }
 
+        /// <summary>
+        /// Generates the currently selected <see cref="Heatmap"/>.
+        /// </summary>
         public void GenerateHeatmap()
         {
 
@@ -195,6 +336,10 @@ namespace TerrainHeatmap
             t.terrainData.SetAlphamaps(0, 0, SelectedHeatmap.alphaMapData);
         }
 
+        /// <summary>
+        /// Returns the Custom Data Points of the currently selected <see cref="Heatmap"/> after it's <see cref="Heatmap.filter"/> has been applied.
+        /// </summary>
+        /// <returns><see cref="HeatmapNode[]"/></returns>
         HeatmapNode[] GetCustomDataPointArray()
         {
             HeatmapNode[] customDataPoints = FindObjectsOfType<HeatmapNode>();
@@ -214,13 +359,17 @@ namespace TerrainHeatmap
         }
 
 
-        // Use this for initialization
+        /// <summary>
+        /// Unity Default Start method, used for initialisation.
+        /// </summary>
         void Start()
         {
             if (Initialised == false) Initialise();
         }
 
-        // Update is called once per frame
+        /// <summary>
+        /// Updates called once per frame.
+        /// </summary>
         void Update()
         {
             if (_realTimeUpdateEnabled)
@@ -231,7 +380,9 @@ namespace TerrainHeatmap
             CheckActiveInactiveTerrainComponents();
         }
 
-
+        /// <summary>
+        /// Editor Update.
+        /// </summary>
         public void EditorUpdate()
         {
             if (_realTimeEditorUpdateEnabled)
@@ -242,6 +393,9 @@ namespace TerrainHeatmap
             CheckActiveInactiveTerrainComponents();
         }
 
+        /// <summary>
+        /// Checks the <see cref="HeatmapController"/> and the <see cref="referenceTerrainObject"/>'s Terrain components and toggles between them depending on if <see cref="DisplayHeatmap"/> is true or false.
+        /// </summary>
         void CheckActiveInactiveTerrainComponents()
         {
             if (this == null) return;
@@ -253,6 +407,9 @@ namespace TerrainHeatmap
             referenceTerrainObject.GetComponent<Terrain>().enabled = !DisplayHeatmap;
         }
 
+        /// <summary>
+        /// Refreshes the reference terrain object and the <see cref="HeatmapController"/>'s <see cref="_terrainData"/>.
+        /// </summary>
         public void RefreshReferenceTerrainObject()
         {
             if (referenceTerrainObject == null) return;
@@ -340,8 +497,8 @@ namespace TerrainHeatmap
                     {
                         Generator = Generator == null ? new HeatmapGenerator() : Generator;
 
-                        int chunkSize = (int)(_terrainData.alphamapResolution / RealTimeUpdateChunks);
-                        int RTChunks = RealTimeUpdateChunks;
+                        int chunkSize = (int)(_terrainData.alphamapResolution / RealTimeUpdateChunksMultiplier);
+                        int RTChunks = RealTimeUpdateChunksMultiplier;
                         int splatPrototypeLength = _terrainData.splatPrototypes.Length;
                         HeatmapNode[] customDataArray = null;
                         int selectedHeatmap = SelectedHeatmapIndex;
@@ -354,7 +511,7 @@ namespace TerrainHeatmap
                         {
                             for (int y = 0; y < RTChunks; y++)
                             {
-                                if (RTChunks != RealTimeUpdateChunks) continue;
+                                if (RTChunks != RealTimeUpdateChunksMultiplier) continue;
                                 
                                 if (GetComponent<HeatmapController>() == null) break;
                                 float threadStartTime = Time.realtimeSinceStartup;
@@ -559,9 +716,9 @@ namespace TerrainHeatmap
         {
             GUILayout.BeginHorizontal();
                 GUILayout.Label("Real Time Update Chunks (Multiplier)");
-                if (GUILayout.Button("<", GUILayout.Width(20.0f))) _heatmapController.RealTimeUpdateChunks /= 2;
-                GUILayout.Label(""+_heatmapController.RealTimeUpdateChunks, GUILayout.Width(40.0f));
-                if(GUILayout.Button(">", GUILayout.Width(20.0f))) _heatmapController.RealTimeUpdateChunks *=2;
+                if (GUILayout.Button("<", GUILayout.Width(20.0f))) _heatmapController.RealTimeUpdateChunksMultiplier /= 2;
+                GUILayout.Label(""+_heatmapController.RealTimeUpdateChunksMultiplier, GUILayout.Width(40.0f));
+                if(GUILayout.Button(">", GUILayout.Width(20.0f))) _heatmapController.RealTimeUpdateChunksMultiplier *=2;
             GUILayout.EndHorizontal();
         }
 
