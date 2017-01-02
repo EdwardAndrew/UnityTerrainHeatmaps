@@ -434,6 +434,9 @@ namespace TerrainHeatmap
             }
         }
 
+        /// <summary>
+        /// Unity default Gizmo drawing method.
+        /// </summary>
         private void OnDrawGizmos()
         {
             if(DisplayHeatmap && DisplayDataPointGizmos)
@@ -457,6 +460,10 @@ namespace TerrainHeatmap
             }
         }
 
+        /// <summary>
+        /// Realtime <see cref="Heatmap"/> co-routine.
+        /// </summary>
+        /// <returns></returns>
         IEnumerator RealTimeHeatmapUpdate()
         {
             while(true) 
@@ -576,13 +583,18 @@ namespace TerrainHeatmap
             }
         }
 
-
+        /// <summary>
+        /// Stop co-routines and remove delegates.
+        /// </summary>
         private void OnDestroy()
         {
             DisableEditorUpdates();
             StopAllCoroutines();
         }
 
+        /// <summary>
+        /// Remove EditorUpdate delegate from EditorApplication.update.
+        /// </summary>
         void DisableEditorUpdates()
         {
             #if UNITY_EDITOR
@@ -593,6 +605,9 @@ namespace TerrainHeatmap
 
     }
 
+    /// <summary>
+    /// <see cref="HeatmapController"/> Custom Editor Inspector.
+    /// </summary>
 #if UNITY_EDITOR
     [CustomEditor(typeof(HeatmapController))]
     public class HeatmapControllerCustomInspector : Editor
