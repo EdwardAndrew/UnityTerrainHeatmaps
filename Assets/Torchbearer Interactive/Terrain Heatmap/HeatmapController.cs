@@ -619,6 +619,9 @@ namespace TerrainHeatmap
 
         static Texture s_tbLogo;
 
+        /// <summary>
+        /// Unity Editor Inspector OnEnable() method.
+        /// </summary>
         void OnEnable()
         {
             if (s_tbLogo == null) s_tbLogo = ((Texture)EditorGUIUtility.Load("Torchbearer Interactive/TBLogo.png"));
@@ -637,6 +640,9 @@ namespace TerrainHeatmap
             }
         }
 
+        /// <summary>
+        /// Unity Method to draw the GUI.
+        /// </summary>
         public override void OnInspectorGUI()
         {
             TBLogo();
@@ -677,16 +683,24 @@ namespace TerrainHeatmap
 
         }
 
+        /// <summary>
+        /// Draws the TBLogo.
+        /// </summary>
         void TBLogo()
         {
             GUILayout.Label(s_tbLogo, GUILayout.Width(EditorGUIUtility.currentViewWidth - 40.0f), GUILayout.Height(60.0f));
         }
-
+        /// <summary>
+        /// Display the no terrain warning box.
+        /// </summary>
         void DisplayNoTerrainObjectWarning()
         {
             EditorGUILayout.HelpBox("Select a reference Terrain object.", MessageType.Warning);
         }
 
+        /// <summary>
+        /// Draw the object field for the reference Terrain object.
+        /// </summary>
         void ReferenceTerrainObjectField()
         {
             GUILayout.BeginHorizontal();
@@ -699,7 +713,9 @@ namespace TerrainHeatmap
 
             GUILayout.EndHorizontal();
         }
-
+        /// <summary>
+        /// Display the RealTimeUpdateGUI settings.
+        /// </summary>
         void RealTimeUpdateGUI()
         {
             GUILayout.BeginHorizontal();
@@ -710,16 +726,25 @@ namespace TerrainHeatmap
             DisplayRealTimeUpdateInterval();
         }
 
+        /// <summary>
+        /// Display the toggle for the RealTimeUpdateEnabled boolean.
+        /// </summary>
         void DisplayRealTimeUpdateEnabledToggle()
         {
             _heatmapController.RealTimeUpdateEnabled =  EditorGUILayout.Toggle("Real Time Updates",_heatmapController.RealTimeUpdateEnabled);
         }
 
+        /// <summary>
+        /// Display the toggle for the RealTimeEditorUpdateEnabled boolean.
+        /// </summary>
         void DisplayRealTimeEditorUpdateEnabledToggle()
         {
             _heatmapController.RealTimeEditorUpdateEnabled = EditorGUILayout.Toggle("Editor Updates", _heatmapController.RealTimeEditorUpdateEnabled);
         }
 
+        /// <summary>
+        /// Display the RealTimeUpdateInterval's float field.
+        /// </summary>
         void DisplayRealTimeUpdateInterval()
         {
             GUILayout.BeginHorizontal();
@@ -727,6 +752,9 @@ namespace TerrainHeatmap
             GUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Display the number of selected RealtimeUpdateChunks.
+        /// </summary>
         void DisplayRealTimeUpdateChunks()
         {
             GUILayout.BeginHorizontal();
@@ -737,11 +765,17 @@ namespace TerrainHeatmap
             GUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Displays the toggle that controls if the user is viewing the Heatmap or reference Terrain object.
+        /// </summary>
         void DisplayReferenceTerrainObjectToggle()
         {
             _heatmapController.DisplayHeatmap = GUILayout.Toggle(_heatmapController.DisplayHeatmap, "Display Heatmap");
         }
 
+        /// <summary>
+        /// Display the Heatmap navigation buttons.
+        /// </summary>
         void SelectHeatmapButtons()
         {
             EditorGUILayout.BeginHorizontal();
@@ -776,11 +810,17 @@ namespace TerrainHeatmap
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Draw a horizontal line across the editor inspector.
+        /// </summary>
         void HorizontalLine()
         {
             GUILayout.Box("", new GUILayoutOption[] { GUILayout.ExpandWidth(true), GUILayout.Height(1) });
         }
 
+        /// <summary>
+        /// Draw all the GUI elements for the custom inspector.
+        /// </summary>
         void HeatmapDataGUI()
         {
             DisplayHeatmapName();
@@ -792,17 +832,27 @@ namespace TerrainHeatmap
             DisplayHeatmapDataSource();
             DisplayHeatmapTextures();
         }
+
+        /// <summary>
+        /// Display the toggle to flip the Data constraints.
+        /// </summary>
         void DisplayFlipConstraints()
         {
             _heatmapController.SelectedHeatmap.displayFlippedConstraints = EditorGUILayout.Toggle("Flip Textures", _heatmapController.SelectedHeatmap.displayFlippedConstraints);
         }
 
 
+        /// <summary>
+        /// Display the float field to change the base value of the Heatmap.
+        /// </summary>
         void DisplayBaseValue()
         {
             _heatmapController.SelectedHeatmap.baseValue = EditorGUILayout.FloatField("Base Value",_heatmapController.SelectedHeatmap.baseValue);
         }
 
+        /// <summary>
+        /// Display the Heatmap constraints float fields.
+        /// </summary>
         void DisplayHeatmapConstraints()
         {
             _heatmapController.SelectedHeatmap.autoConstrain = EditorGUILayout.Toggle("Auto Constrain",_heatmapController.SelectedHeatmap.autoConstrain);
@@ -814,6 +864,9 @@ namespace TerrainHeatmap
             }
         }
 
+        /// <summary>
+        /// Display the buttons to add a new heatmap or remove the currently selected one.
+        /// </summary>
         void AddRemoveHeatmapButtons()
         {
             EditorGUILayout.BeginHorizontal();
@@ -831,11 +884,17 @@ namespace TerrainHeatmap
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Display the selected Interpolation mode for the heatmap.
+        /// </summary>
         void DisplayHeatmapInterpolationMode()
         {
             _heatmapController.SelectedHeatmap.interpolationMode = (InterpolationMode)EditorGUILayout.EnumPopup("Interpolation Mode", _heatmapController.SelectedHeatmap.interpolationMode);
         }
 
+        /// <summary>
+        /// Display toggle controlling the the data point gizmos should be displayed or not.
+        /// </summary>
         void DisplayDataPointGizmos()
         {
             EditorGUILayout.BeginHorizontal();
@@ -847,6 +906,9 @@ namespace TerrainHeatmap
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Displays the field for the selected Heatmap's data source.
+        /// </summary>
         void DisplayHeatmapDataSource()
         {
             _heatmapController.SelectedHeatmap.dataType = (HeatmapData)EditorGUILayout.EnumPopup("Data Source", _heatmapController.SelectedHeatmap.dataType);
@@ -856,11 +918,17 @@ namespace TerrainHeatmap
             }
         }
 
+        /// <summary>
+        /// Display the toggle to flip the constraints of the selected Heatmap.
+        /// </summary>
         void DisplayHeatmapFlipTextures()
         {
             _heatmapController.SelectedHeatmap.displayFlippedConstraints = EditorGUILayout.Toggle("Flip Textures", _heatmapController.SelectedHeatmap.displayFlippedConstraints);
         }
-
+    
+        /// <summary>
+        /// Display the custom textures of the selected Heatmap.
+        /// </summary>
         void DisplayHeatmapTextures()
         {
             _heatmapController.SelectedHeatmap.texSource = (TextureSource)EditorGUILayout.EnumPopup("Texture Source", _heatmapController.SelectedHeatmap.texSource);
@@ -918,16 +986,25 @@ namespace TerrainHeatmap
             }
         }
 
+        /// <summary>
+        /// Displays a warning message complaining about no custom textures being provided.
+        /// </summary>
         void DisplayNoHeatmapSplatprototypeWarning()
         {
             EditorGUILayout.HelpBox("No textures have been provided, use the default textures or add some custom textures.", MessageType.Warning);
         }
 
+        /// <summary>
+        /// Displays the name of the Heatmap on the Inspector.
+        /// </summary>
         void DisplayHeatmapName()
         {
             _heatmapController.SelectedHeatmap.name = EditorGUILayout.DelayedTextField("Name", _heatmapController.SelectedHeatmap.name);
         }
 
+        /// <summary>
+        /// Display the  selected Heatmap's resolution and the buttons to change it.
+        /// </summary>
         void DisplayHeatmapResolution()
         {
             bool resolutionUpdated = false;
@@ -972,12 +1049,20 @@ namespace TerrainHeatmap
             EditorGUILayout.EndHorizontal();
         }
 
+        /// <summary>
+        /// Calls SceneView.RepaintAll if it's required.
+        /// </summary>
         void UpdateSceneViewIfNeeded()
         {
             if (_isSceneViewUpdateRequired) SceneView.RepaintAll();
         }
 
 
+        /// <summary>
+        /// Returns the textures of all the HeatmapSplatPrototypes provided in an array.
+        /// </summary>
+        /// <param name="splatPrototypes"></param>
+        /// <returns>Array of all textures used in the HeatmapSplatprototypes.</returns>
         Texture2D[] GetSplatPrototypesAsTexture2DArray(List<HeatmapSplatprototype> splatPrototypes)
         {
             if (splatPrototypes == null) return null;
@@ -999,6 +1084,15 @@ namespace TerrainHeatmap
             return texture2DArray.ToArray();
         }
 
+        /// <summary>
+        /// Updates the properties of a Heatmap's splat prototypes.
+        /// </summary>
+        /// <param name="_metallic"></param>
+        /// <param name="_smoothness"></param>
+        /// <param name="_tileSize"></param>
+        /// <param name="_tileOffset"></param>
+        /// <param name="_textureMap"></param>
+        /// <param name="_normalMap"></param>
         public void UpdateSplatMapProperties(float _metallic, float _smoothness, Vector2 _tileSize, Vector2 _tileOffset, Texture2D _textureMap, Texture2D _normalMap)
         {
             SplatPrototype[] splatMaps = _heatmapController.Splatprototypes;
@@ -1024,22 +1118,43 @@ namespace TerrainHeatmap
             _heatmapController.Splatprototypes = splatMaps;
         }
 
+        /// <summary>
+        /// Adds a new custom HeatmapSplatPrototype to the selected Heatmap.
+        /// </summary>
+        /// <param name="newHeatmapSplatprototype"></param>
         public void AddHeatmapSplatPrototype(HeatmapSplatprototype newHeatmapSplatprototype)
         {
             _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Add(newHeatmapSplatprototype);
         }
 
+        /// <summary>
+        /// Updates the selected HeatmapSplatPrototype by replacing it with the newSplatPrototype.
+        /// </summary>
+        /// <param name="newSplatPrototype"></param>
         public void UpdateSelectedSplatPrototype(HeatmapSplatprototype newSplatPrototype)
         {
             _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.RemoveAt(_selectedTextureGrid);
             _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Insert(_selectedTextureGrid,newSplatPrototype);
         }
 
+        /// <summary>
+        /// Displays the 'Generate Heatmap' button.
+        /// </summary>
         void DisplayGenerateHeatmapButton()
         {
             if (GUILayout.Button("Generate Heatmap")) _heatmapController.GenerateHeatmap();
         }
 
+        /// <summary>
+        /// Generates a HeatmapSplatprototype of type TextureSplatMap from the given parameters.
+        /// </summary>
+        /// <param name="_albedo"></param>
+        /// <param name="_normal"></param>
+        /// <param name="_metallic"></param>
+        /// <param name="_smoothness"></param>
+        /// <param name="_tileOffset"></param>
+        /// <param name="_tileSizing"></param>
+        /// <returns>TextureSplatMap HeatmapSplatprototype.</returns>
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Texture2D _albedo, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
         {
             var returnSplatPrototype = ScriptableObject.CreateInstance<TextureSplatMap>();
@@ -1054,6 +1169,16 @@ namespace TerrainHeatmap
             return returnSplatPrototype;
         }
 
+        /// <summary>
+        /// Generates a HeatmapSplatprototype of type ColorSplatMap from the given parameters.
+        /// </summary>
+        /// <param name="_color"></param>
+        /// <param name="_normal"></param>
+        /// <param name="_metallic"></param>
+        /// <param name="_smoothness"></param>
+        /// <param name="_tileOffset"></param>
+        /// <param name="_tileSizing"></param>
+        /// <returns>ColorSplatMap HeatmapSplatprototype.</returns>
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Color _color, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
         {
             var returnSplatPrototype = ScriptableObject.CreateInstance<ColorSplatMap>();
