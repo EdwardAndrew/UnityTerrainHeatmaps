@@ -1165,7 +1165,7 @@ namespace TerrainHeatmap
         /// <returns>TextureSplatMap HeatmapSplatprototype.</returns>
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Texture2D _albedo, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
         {
-            var returnSplatPrototype = ScriptableObject.CreateInstance<TextureSplatMap>();
+            TextureSplatMap returnSplatPrototype = ScriptableObject.CreateInstance<TextureSplatMap>();
 
             returnSplatPrototype.texture = _albedo;
             returnSplatPrototype.normalMap = _normal;
@@ -1189,7 +1189,7 @@ namespace TerrainHeatmap
         /// <returns>ColorSplatMap HeatmapSplatprototype.</returns>
         public HeatmapSplatprototype GenerateHeatmapSplatprototype(Color _color, Texture2D _normal, float _metallic, float _smoothness, Vector2 _tileOffset, Vector2 _tileSizing)
         {
-            var returnSplatPrototype = ScriptableObject.CreateInstance<ColorSplatMap>();
+            ColorSplatMap returnSplatPrototype = ScriptableObject.CreateInstance<ColorSplatMap>();
 
             returnSplatPrototype.color = _color;
             returnSplatPrototype.normalMap = _normal;
