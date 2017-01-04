@@ -1,4 +1,12 @@
-﻿#if UNITY_EDITOR
+﻿//************************************************************************
+// Copyright (C) Torchbearer Interactive, Ltd. - All Rights Reserved
+// 
+// Unauthorized copying of this file, via any medium is strictly prohibited
+// Proprietary and confidential
+// 
+// Written by: Edward S Andrew - ed@tbinteractive.co.uk 2017
+//************************************************************************
+#if UNITY_EDITOR
 using System.Collections;
 using UnityEngine;
 using UnityEditor;

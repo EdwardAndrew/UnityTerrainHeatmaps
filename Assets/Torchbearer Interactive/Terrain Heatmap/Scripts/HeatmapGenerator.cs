@@ -4,7 +4,7 @@
 // Unauthorized copying of this file, via any medium is strictly prohibited
 // Proprietary and confidential
 // 
-// Written by: Edward S Andrew - ed@tbinteractive.co.uk 2016
+// Written by: Edward S Andrew - ed@tbinteractive.co.uk 2017
 //************************************************************************
 using UnityEngine;
 using System.Collections;
@@ -16,6 +16,9 @@ using TBUnityLib.Generic;
 
 namespace TerrainHeatmap
 {
+    /// <summary>
+    /// Generates Heatmaps.
+    /// </summary>
     public class HeatmapGenerator
     {
 
@@ -23,7 +26,7 @@ namespace TerrainHeatmap
         public bool isGenerateHeatMapThreadFinished = true;
 
         int _selectedTextureIndex;
-        List<Heatmap> _visualisationTextures;
+        List<Heatmap> _heatmaps;
         int _alphaMapResolution;
         Vector3 _terrainObjectSize;
         public int terrainX = -9999;
@@ -34,41 +37,49 @@ namespace TerrainHeatmap
         Vector3 _heightMapScale;
         public float[,,] processedAlphaMap;
         float[,,] _originalAlphaMap;
-        HeatmapNode[] _customDataList;
+        HeatmapNode[] _customData;
         Vector3 _positionOffset;
 
+        /// <summary>
+        /// Aborts the thread.
+        /// </summary>
         public void Abort()
         {
             if (_generateHeatMapThread == null) return;
             _generateHeatMapThread.Abort();
         }
 
-        public void Pause()
-        {
-            if (_generateHeatMapThread == null) return;
-            Thread.Sleep(Timeout.Infinite);
-        }
-
-        public void Resume()
-        {
-            if (_generateHeatMapThread == null) return;
-            _generateHeatMapThread.Interrupt();
-        }
-
-
+        /// <summary>
+        /// Method executed by the _genereateHeatmapThread.
+        /// </summary>
         public void GenerateHeatMapChunkThreaded()
         {
-            GenerateHeatMap(_selectedTextureIndex, ref _visualisationTextures, _alphaMapResolution, _terrainObjectSize, terrainX, terrainY, _width, _height, _heightMap, _heightMapScale, false, _customDataList, _positionOffset);
+            GenerateHeatMap(_selectedTextureIndex, ref _heatmaps, _alphaMapResolution, _terrainObjectSize, terrainX, terrainY, _width, _height, _heightMap, _heightMapScale, false, _customData, _positionOffset);
             processedAlphaMap = Chunks.GetAlphaMapChunk(_originalAlphaMap, terrainY, terrainX, _width, _height);
             isGenerateHeatMapThreadFinished = true;
         }
 
-        public void ProcessHeatMapThreaded(int selectedTextureIndex, ref List<Heatmap> visualisationTextures, float[,] heightMap, int alphaMapResolution, Vector3 terrainObjectSize, Vector3 heightMapScale, int x, int y, int width, int height, HeatmapNode[] customDataList, Vector3 positionOffset)
+        /// <summary>
+        /// Begins the thread processing the current Heatmap job.
+        /// </summary>
+        /// <param name="selectedTextureIndex"></param>
+        /// <param name="heatmaps"></param>
+        /// <param name="heightMap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="terrainObjectSize"></param>
+        /// <param name="heightMapScale"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="customData"></param>
+        /// <param name="positionOffset"></param>
+        public void ProcessHeatMapThreaded(int selectedTextureIndex, ref List<Heatmap> heatmaps, float[,] heightMap, int alphaMapResolution, Vector3 terrainObjectSize, Vector3 heightMapScale, int x, int y, int width, int height, HeatmapNode[] customData, Vector3 positionOffset)
         {
             isGenerateHeatMapThreadFinished = false;
 
             _selectedTextureIndex = selectedTextureIndex;
-            _visualisationTextures = visualisationTextures;
+            _heatmaps = heatmaps;
             _heightMap = heightMap;
             _alphaMapResolution = alphaMapResolution;
             terrainX = x;
@@ -77,8 +88,8 @@ namespace TerrainHeatmap
             _height = height;
             _heightMapScale = heightMapScale;
             _terrainObjectSize = terrainObjectSize;
-            _originalAlphaMap = visualisationTextures[selectedTextureIndex].alphaMapData;
-            _customDataList = customDataList;
+            _originalAlphaMap = heatmaps[selectedTextureIndex].alphaMapData;
+            _customData = customData;
             _positionOffset = positionOffset;
 
             _generateHeatMapThread = new Thread(GenerateHeatMapChunkThreaded);
@@ -87,7 +98,15 @@ namespace TerrainHeatmap
         }
 
 
-        public void GenerateHeatMap(int selectedTextureIndex, ref List<Heatmap> visualisationTextures, Terrain terrain, HeatmapNode[] customDataList, Vector3 positionOffset)
+        /// <summary>
+        /// Overload to generate a heatmap with fewer parameters.
+        /// </summary>
+        /// <param name="selectedTextureIndex"></param>
+        /// <param name="heatmaps"></param>
+        /// <param name="terrain"></param>
+        /// <param name="customData"></param>
+        /// <param name="positionOffset"></param>
+        public void GenerateHeatMap(int selectedTextureIndex, ref List<Heatmap> heatmaps, Terrain terrain, HeatmapNode[] customData, Vector3 positionOffset)
         {
             if (terrain == null)
             {
@@ -95,10 +114,26 @@ namespace TerrainHeatmap
             }
             if (terrain.terrainData == null) return;
             float[,] heights = terrain.terrainData.GetHeights(0, 0, terrain.terrainData.heightmapResolution, terrain.terrainData.heightmapResolution);
-            GenerateHeatMap(selectedTextureIndex, ref visualisationTextures, terrain.terrainData.alphamapResolution, terrain.terrainData.size, 0, 0, terrain.terrainData.alphamapResolution, terrain.terrainData.alphamapResolution, heights, terrain.terrainData.heightmapScale, true, customDataList, positionOffset);
+            GenerateHeatMap(selectedTextureIndex, ref heatmaps, terrain.terrainData.alphamapResolution, terrain.terrainData.size, 0, 0, terrain.terrainData.alphamapResolution, terrain.terrainData.alphamapResolution, heights, terrain.terrainData.heightmapScale, true, customData, positionOffset);
         }
 
-        public void GenerateHeatMap(int selectedTextureIndex, ref List<Heatmap> heatmaps, int alphaMapResolution, Vector3 terrainObjectSize, int x, int y, int width, int height, float[,] heightMap, Vector3 heightMapScale, bool splatMapUpdateOverride, HeatmapNode[] customDataList, Vector3 positionOffset)
+        /// <summary>
+        /// Generates a Heatmap.
+        /// </summary>
+        /// <param name="selectedTextureIndex"></param>
+        /// <param name="heatmaps"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="terrainObjectSize"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="heightMap"></param>
+        /// <param name="heightMapScale"></param>
+        /// <param name="splatMapUpdateOverride"></param>
+        /// <param name="customData"></param>
+        /// <param name="positionOffset"></param>
+        public void GenerateHeatMap(int selectedTextureIndex, ref List<Heatmap> heatmaps, int alphaMapResolution, Vector3 terrainObjectSize, int x, int y, int width, int height, float[,] heightMap, Vector3 heightMapScale, bool splatMapUpdateOverride, HeatmapNode[] customData, Vector3 positionOffset)
         {
 
             Heatmap selectedHeatmap;
@@ -113,9 +148,6 @@ namespace TerrainHeatmap
                 selectedHeatmap = heatmaps[selectedTextureIndex];
             }
 
-
-
-
             float originalUpperValueThreshold = selectedHeatmap.upperValueThreshold;
             float originalLowerValueThreshold = selectedHeatmap.lowerValueThreshold;
 
@@ -124,7 +156,7 @@ namespace TerrainHeatmap
                 return;
             }
 
-            if (selectedHeatmap.displayFlippedConstraints) selectedHeatmap = this.FlipDataTextureConstraints(selectedTextureIndex, ref heatmaps);
+            if (selectedHeatmap.displayFlippedConstraints) selectedHeatmap = this.FlipHeatmapConstraints(selectedTextureIndex, ref heatmaps);
 
             // Generate splatPrototypes for heatMap.
             if (!splatMapUpdateOverride)
@@ -150,11 +182,10 @@ namespace TerrainHeatmap
             }
 
             // Create Value Map.
-
             selectedHeatmap.visualisationValueMap = new float[alphaMapResolution, alphaMapResolution];
 
             // Load Genereated heatMap data into Array.
-            AssignMapData(selectedHeatmap, alphaMapResolution, terrainObjectSize, heightMap, heightMapScale, customDataList, positionOffset);
+            AssignMapData(selectedHeatmap, alphaMapResolution, terrainObjectSize, heightMap, heightMapScale, customData, positionOffset);
 
             if (selectedHeatmap.autoConstrain) AutoConstrainValues(ref selectedHeatmap, selectedHeatmap.displayFlippedConstraints);
             if (selectedHeatmap.displayFlippedConstraints) selectedHeatmap.coldHotValueOffset = CalculateLowerUpperThresholdValueOffset(selectedHeatmap.lowerValueThreshold);
@@ -171,12 +202,17 @@ namespace TerrainHeatmap
 
         }
 
-        void AutoConstrainValues(ref Heatmap dataTexture, bool flipConstraints)
+        /// <summary>
+        /// Finds the highest and lowest values and uses them as the constraints.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="flipConstraints"></param>
+        void AutoConstrainValues(ref Heatmap heatmap, bool flipConstraints)
         {
-            float upperValue = dataTexture.mapData[0, 0].value;
-            float lowerValue = dataTexture.mapData[0, 0].value;
+            float upperValue = heatmap.mapData[0, 0].value;
+            float lowerValue = heatmap.mapData[0, 0].value;
 
-            foreach (HeatmapDatum datum in dataTexture.mapData)
+            foreach (HeatmapDatum datum in heatmap.mapData)
             {
                 if (datum.value > upperValue) upperValue = datum.value;
                 if (datum.value < lowerValue) lowerValue = datum.value;
@@ -185,13 +221,13 @@ namespace TerrainHeatmap
             if (!flipConstraints)
             {
 
-                dataTexture.lowerValueThreshold = lowerValue + 1;
-                dataTexture.upperValueThreshold = upperValue - 1;
+                heatmap.lowerValueThreshold = lowerValue + 1;
+                heatmap.upperValueThreshold = upperValue - 1;
             }
             else
             {
-                dataTexture.upperValueThreshold = lowerValue + 1;
-                dataTexture.lowerValueThreshold = upperValue - 1;
+                heatmap.upperValueThreshold = lowerValue + 1;
+                heatmap.lowerValueThreshold = upperValue - 1;
             }
 
         }
@@ -245,6 +281,11 @@ namespace TerrainHeatmap
 
         }
 
+        /// <summary>
+        /// Generate the custom splatPrototypes for a Heatmap.
+        /// </summary>
+        /// <param name="datatexture"></param>
+        /// <returns></returns>
         SplatPrototype[] GenerateSplatPrototypesCustom(Heatmap datatexture)
         {
             List<SplatPrototype> splats = new List<SplatPrototype>();
@@ -275,15 +316,17 @@ namespace TerrainHeatmap
             return splats.ToArray();
         }
 
-        SplatPrototype[] GenerateSplatPrototypes(Heatmap datatexture)
+        /// <summary>
+        /// Genereates the correct type of Splatprototypes for the heatmap
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <returns></returns>
+        SplatPrototype[] GenerateSplatPrototypes(Heatmap heatmap)
         {
-            switch (datatexture.texSource)
+            switch (heatmap.texSource)
             {
-                case (TextureSource.DefaultColors):
-                    return GenerateSplatPrototypesDefault();
-
                 case (TextureSource.Custom):
-                    return GenerateSplatPrototypesCustom(datatexture);
+                    return GenerateSplatPrototypesCustom(heatmap);
 
                 default:
                     return GenerateSplatPrototypesDefault();
@@ -292,88 +335,114 @@ namespace TerrainHeatmap
 
         }
 
-        Heatmap FlipDataTextureConstraints(int dataTextureIndex, ref List<Heatmap> visualisationTextures)
+        /// <summary>
+        /// Flip the heatmap constraints.
+        /// </summary>
+        /// <param name="heatmapIndex"></param>
+        /// <param name="heatmaps"></param>
+        /// <returns></returns>
+        Heatmap FlipHeatmapConstraints(int heatmapIndex, ref List<Heatmap> heatmaps)
         {
-            var dataTex = visualisationTextures[dataTextureIndex];
+            var heatmap = heatmaps[heatmapIndex];
 
-            float temp = dataTex.upperValueThreshold;
+            float temp = heatmap.upperValueThreshold;
 
-            dataTex.upperValueThreshold = dataTex.lowerValueThreshold;
-            dataTex.lowerValueThreshold = temp;
+            heatmap.upperValueThreshold = heatmap.lowerValueThreshold;
+            heatmap.lowerValueThreshold = temp;
 
-            return dataTex;
+            return heatmap;
         }
 
-        void AssignMapData(Heatmap dataTexture, int alphaMapResolution, Vector3 terrainObjectSize, float[,] heightMap, Vector3 heightMapScale, HeatmapNode[] customDataList, Vector3 positionOffset)
+        /// <summary>
+        /// Chooses the correct method to assign the values to the Heatmap's data points.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="terrainObjectSize"></param>
+        /// <param name="heightMap"></param>
+        /// <param name="heightMapScale"></param>
+        /// <param name="customDataList"></param>
+        /// <param name="positionOffset"></param>
+        void AssignMapData(Heatmap heatmap, int alphaMapResolution, Vector3 terrainObjectSize, float[,] heightMap, Vector3 heightMapScale, HeatmapNode[] customDataList, Vector3 positionOffset)
         {
 
-            switch (dataTexture.dataType)
+            switch (heatmap.dataType)
             {
-
-                case (HeatmapData.HeightMap):
-                    TerrainHeightToVisualisationTextureData(dataTexture, terrainObjectSize, alphaMapResolution, heightMap, heightMapScale);
-                    break;
-
                 case (HeatmapData.Custom):
 
-                    CustomDataToVisualisationTextureData(dataTexture, customDataList, false, terrainObjectSize, alphaMapResolution, positionOffset);
+                    CustomDataToHeatmapData(heatmap, customDataList, false, terrainObjectSize, alphaMapResolution, positionOffset);
                     break;
 
                 default:
-                    TerrainHeightToVisualisationTextureData(dataTexture, terrainObjectSize, alphaMapResolution, heightMap, heightMapScale);
+                    TerrainHeightToHeatmapData(heatmap, terrainObjectSize, alphaMapResolution, heightMap, heightMapScale);
                     break;
             }
 
         }
 
-        // Generate heatmap data from the Terrain's height map.
-        void TerrainHeightToVisualisationTextureData(Heatmap dataTexture, Vector3 terrainObjectSize, int alphaMapResolution, float[,] heightMap, Vector3 heightMapScale)
+        /// <summary>
+        /// Generate heatmap data from the Terrain's height map.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="terrainObjectSize"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="heightMap"></param>
+        /// <param name="heightMapScale"></param>
+        void TerrainHeightToHeatmapData(Heatmap heatmap, Vector3 terrainObjectSize, int alphaMapResolution, float[,] heightMap, Vector3 heightMapScale)
         {
-            HeatmapDatum[,] returnVal = new HeatmapDatum[dataTexture.heatmapResolution + 1, dataTexture.heatmapResolution + 1];
+            HeatmapDatum[,] heatmapValues = new HeatmapDatum[heatmap.heatmapResolution + 1, heatmap.heatmapResolution + 1];
 
-            for (int x = 0; x <= dataTexture.heatmapResolution; x++)
+            for (int x = 0; x <= heatmap.heatmapResolution; x++)
             {
-                for (int y = 0; y <= dataTexture.heatmapResolution; y++)
+                for (int y = 0; y <= heatmap.heatmapResolution; y++)
                 {
-                    float resScaleFactorX = terrainObjectSize.x / dataTexture.heatmapResolution;
-                    float resScaleFactorZ = terrainObjectSize.z / dataTexture.heatmapResolution;
+                    float resScaleFactorX = terrainObjectSize.x / heatmap.heatmapResolution;
+                    float resScaleFactorZ = terrainObjectSize.z / heatmap.heatmapResolution;
 
                     Vector3 nodeLocation = new Vector3((int)(y * resScaleFactorZ / (terrainObjectSize.z / 512)), 0.0f, (int)(x * resScaleFactorX / (terrainObjectSize.x / 512)));
 
                     float nodeValue = heightMap[(int)nodeLocation.z, (int)nodeLocation.x] * heightMapScale.y;
 
 
-                    returnVal[x, y] = new HeatmapDatum();
-                    returnVal[x, y].Init(nodeLocation, nodeValue, Coordinates.WorldToTerrainCoords(nodeLocation, terrainObjectSize, alphaMapResolution));
+                    heatmapValues[x, y] = new HeatmapDatum();
+                    heatmapValues[x, y].Init(nodeLocation, nodeValue, Coordinates.WorldToTerrainCoords(nodeLocation, terrainObjectSize, alphaMapResolution));
                 }
             }
 
-            dataTexture.mapData = returnVal;
+            heatmap.mapData = heatmapValues;
         }
 
 
-
-        void CustomDataToVisualisationTextureData(Heatmap dataTexture, HeatmapNode[] customData, bool addCloseValues, Vector3 terrainSize, int alphaMapResolution, Vector3 positionOffset)
+        /// <summary>
+        /// Generate Heatmap data from custom data provided.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="customData"></param>
+        /// <param name="addValuesOfIntersectingPoints"></param>
+        /// <param name="terrainSize"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="positionOffset"></param>
+        void CustomDataToHeatmapData(Heatmap heatmap, HeatmapNode[] customData, bool addValuesOfIntersectingPoints, Vector3 terrainSize, int alphaMapResolution, Vector3 positionOffset)
         {
-            HeatmapDatum[,] returnVal = new HeatmapDatum[dataTexture.heatmapResolution + 1, dataTexture.heatmapResolution + 1];
+            HeatmapDatum[,] heatmapDataArray = new HeatmapDatum[heatmap.heatmapResolution + 1, heatmap.heatmapResolution + 1];
 
             // Assign the resulting value of the alphaMapResolution divided by the dataTextureResolution to a variable, as this is used a lot.
-            int alphaMapDividedByDataTextureResolution = (alphaMapResolution / dataTexture.heatmapResolution);
+            int alphaMapDividedByDataTextureResolution = (alphaMapResolution / heatmap.heatmapResolution);
 
 
             // Populate the newly created returnVal array with default data.
-            for (int x = 0; x <= dataTexture.heatmapResolution; x++)
+            for (int x = 0; x <= heatmap.heatmapResolution; x++)
             {
-                for (int y = 0; y <= dataTexture.heatmapResolution; y++)
+                for (int y = 0; y <= heatmap.heatmapResolution; y++)
                 {
-                    returnVal[x, y] = new HeatmapDatum();
-                    returnVal[x, y].value = dataTexture.baseValue;
-                    returnVal[x, y].nodePosition = new Vector3((int)(x * alphaMapDividedByDataTextureResolution), 0.0f, (int)(y * alphaMapDividedByDataTextureResolution));
-                    returnVal[x, y].terrainCoords = new Pair<int>((int)(x * alphaMapDividedByDataTextureResolution), (int)(y * alphaMapDividedByDataTextureResolution));
+                    heatmapDataArray[x, y] = new HeatmapDatum();
+                    heatmapDataArray[x, y].value = heatmap.baseValue;
+                    heatmapDataArray[x, y].nodePosition = new Vector3((int)(x * alphaMapDividedByDataTextureResolution), 0.0f, (int)(y * alphaMapDividedByDataTextureResolution));
+                    heatmapDataArray[x, y].terrainCoords = new Pair<int>((int)(x * alphaMapDividedByDataTextureResolution), (int)(y * alphaMapDividedByDataTextureResolution));
                 }
             }
 
-            float incrementInterval = (alphaMapResolution / dataTexture.heatmapResolution);
+            float incrementInterval = (alphaMapResolution / heatmap.heatmapResolution);
 
             //Assign the values of all the points we know to the correct position in the array.
             foreach (HeatmapNode customDatum in customData)
@@ -390,7 +459,7 @@ namespace TerrainHeatmap
                 brushHardness = Mathf.Clamp(brushHardness, 0.0f, 100.0f) / 100;
 
                 // Find the correct position in the array based on the object's transform.
-                Vector3 closetMapPointPosition = GetClosestDataPointPosition((customDatum.position - positionOffset), terrainSize, dataTexture.heatmapResolution, alphaMapResolution, incrementInterval);
+                Vector3 closetMapPointPosition = GetClosestDataPointPosition((customDatum.position - positionOffset), terrainSize, heatmap.heatmapResolution, alphaMapResolution, incrementInterval);
                 Vector2 textureCoordianates = Coordinates.WorldToTerrainCoords(closetMapPointPosition, terrainSize, alphaMapResolution);
 
                 // Using the dataTexture Resolution and the Terrain coordiantes, calculate the correct position in the array.
@@ -403,9 +472,9 @@ namespace TerrainHeatmap
 
                 if (!customDatum.overwriteOtherNodeValues)
                 {
-                    if (arrayPositionX >= 0 && arrayPositionY >= 0 && arrayPositionX < dataTexture.heatmapResolution && arrayPositionY < dataTexture.heatmapResolution)
+                    if (arrayPositionX >= 0 && arrayPositionY >= 0 && arrayPositionX < heatmap.heatmapResolution && arrayPositionY < heatmap.heatmapResolution)
                     {
-                        value = customDatum.value * brushOpacity + returnVal[arrayPositionX, arrayPositionY].value;
+                        value = customDatum.value * brushOpacity + heatmapDataArray[arrayPositionX, arrayPositionY].value;
                     }
                 }
 
@@ -416,7 +485,7 @@ namespace TerrainHeatmap
                 textureDatum.Init(closetMapPointPosition, value, new Pair<int>((int)textureCoordianates.x, (int)textureCoordianates.y));
 
                 // Assign the VisualisationTextureDatum to the correct Index in the Array.
-                if (arrayPositionX < dataTexture.heatmapResolution && arrayPositionY < dataTexture.heatmapResolution && arrayPositionX > 0 && arrayPositionY > 0) returnVal[arrayPositionX, arrayPositionY] = textureDatum;
+                if (arrayPositionX < heatmap.heatmapResolution && arrayPositionY < heatmap.heatmapResolution && arrayPositionX > 0 && arrayPositionY > 0) heatmapDataArray[arrayPositionX, arrayPositionY] = textureDatum;
 
 
 
@@ -442,7 +511,7 @@ namespace TerrainHeatmap
 
                                 if (arryPosX == arrayPositionX && arryPosY == arrayPositionY) continue;
 
-                                if (arryPosX >= 0 && arryPosY >= 0 && arryPosX <= dataTexture.heatmapResolution && arryPosY <= dataTexture.heatmapResolution)
+                                if (arryPosX >= 0 && arryPosY >= 0 && arryPosX <= heatmap.heatmapResolution && arryPosY <= heatmap.heatmapResolution)
                                 {
                                     int dx = arryPosX - arrayPositionX;
                                     int dy = arryPosY - arrayPositionY;
@@ -456,11 +525,11 @@ namespace TerrainHeatmap
 
                                         if (!customDatum.overwriteOtherNodeValues)
                                         {
-                                            returnVal[arryPosX, arryPosY].value += (brushHardnessModifier * customDatum.value) * brushOpacity;
+                                            heatmapDataArray[arryPosX, arryPosY].value += (brushHardnessModifier * customDatum.value) * brushOpacity;
                                         }
                                         else
                                         {
-                                            returnVal[arryPosX, arryPosY].value = (brushHardnessModifier * customDatum.value) * brushOpacity;
+                                            heatmapDataArray[arryPosX, arryPosY].value = (brushHardnessModifier * customDatum.value) * brushOpacity;
                                         }
                                     }
                                 }
@@ -471,27 +540,32 @@ namespace TerrainHeatmap
 
             }
 
-            dataTexture.mapData = returnVal;
+            heatmap.mapData = heatmapDataArray;
         }
 
 
-        // Assigns the colour value based on the heatMap data to a given terrain Pixel.
-        void AssignVisualisationTextureColorValue(ref Heatmap dataTexture, int x, int y)
+        /// <summary>
+        /// Assigns the colour value based on the heatMap data to a given terrain Pixel.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        void AssignHeatmapColorValue(ref Heatmap heatmap, int x, int y)
         {
 
             // Calculate the value as a % of HottestValueThreshold.
-            float value = dataTexture.visualisationValueMap[x, y];
+            float value = heatmap.visualisationValueMap[x, y];
 
-            value += CalculateLowerUpperThresholdValueOffset(dataTexture.lowerValueThreshold);
+            value += CalculateLowerUpperThresholdValueOffset(heatmap.lowerValueThreshold);
 
             // Offset the value to ensure it's positive.
-            value += dataTexture.upperValueThreshold / dataTexture.splatPrototypes.Length;
+            value += heatmap.upperValueThreshold / heatmap.splatPrototypes.Length;
 
             // Calculate the value as a % of the range of values it could be.
-            value = (value / (dataTexture.upperValueThreshold - dataTexture.lowerValueThreshold));
+            value = (value / (heatmap.upperValueThreshold - heatmap.lowerValueThreshold));
 
             // Normalise the value so if the value is at HottestValueThreshold, that threshold is equal to the last index in heatMapSplatPrototypes.
-            value = (value * dataTexture.splatPrototypes.Length - 1);
+            value = (value * heatmap.splatPrototypes.Length - 1);
 
             if (float.IsNaN(value)) value = 0.0f;
 
@@ -499,26 +573,26 @@ namespace TerrainHeatmap
             if (value < 0)
             {
                 // Set the bottom layer to be 100% opaque.
-                dataTexture.alphaMapData[x, y, 0] = 1.0f;
+                heatmap.alphaMapData[x, y, 0] = 1.0f;
 
                 // Loop through all other layers setting their values to 0% opacity.
-                for (int layerAboveZero = 1; layerAboveZero < dataTexture.splatPrototypes.Length; layerAboveZero++)
+                for (int layerAboveZero = 1; layerAboveZero < heatmap.splatPrototypes.Length; layerAboveZero++)
                 {
-                    dataTexture.alphaMapData[x, y, layerAboveZero] = 0.0f;
+                    heatmap.alphaMapData[x, y, layerAboveZero] = 0.0f;
                 }
 
                 return;
             }
             // If the value is above the index number of the highest layer.
-            else if (value >= dataTexture.splatPrototypes.Length - 1)
+            else if (value >= heatmap.splatPrototypes.Length - 1)
             {
                 // Set the value fot the hottest layer to be 100% opaque.
-                dataTexture.alphaMapData[x, y, dataTexture.splatPrototypes.Length - 1] = 1.0f;
+                heatmap.alphaMapData[x, y, heatmap.splatPrototypes.Length - 1] = 1.0f;
 
                 // Loop through all the other layers setting their values to 0% opacity.
-                for (int layersBelowTop = (dataTexture.splatPrototypes.Length - 2); layersBelowTop >= 0; layersBelowTop--)
+                for (int layersBelowTop = (heatmap.splatPrototypes.Length - 2); layersBelowTop >= 0; layersBelowTop--)
                 {
-                    dataTexture.alphaMapData[x, y, layersBelowTop] = 0.0f;
+                    heatmap.alphaMapData[x, y, layersBelowTop] = 0.0f;
                 }
                 return;
             }
@@ -527,24 +601,24 @@ namespace TerrainHeatmap
             else
             {
                 // Loop through all the layers to find the layers where the blending should occur.
-                for (int layernum = dataTexture.splatPrototypes.Length - 1; layernum > 0; layernum--)
+                for (int layernum = heatmap.splatPrototypes.Length - 1; layernum > 0; layernum--)
                 {
                     // If this condition is true, we need to blend these layers.
                     if (value < layernum && value >= layernum - 1)
                     {
-                        dataTexture.alphaMapData[x, y, layernum] = value - (layernum - 1);
-                        dataTexture.alphaMapData[x, y, layernum - 1] = 1.0f - (value - (layernum - 1));
+                        heatmap.alphaMapData[x, y, layernum] = value - (layernum - 1);
+                        heatmap.alphaMapData[x, y, layernum - 1] = 1.0f - (value - (layernum - 1));
 
                         // Loop through all layers above this layer and set to 0% opacity.
-                        for (int num = layernum + 1; num < dataTexture.splatPrototypes.Length; num++)
+                        for (int num = layernum + 1; num < heatmap.splatPrototypes.Length; num++)
                         {
-                            dataTexture.alphaMapData[x, y, num] = 0.0f;
+                            heatmap.alphaMapData[x, y, num] = 0.0f;
                         }
 
                         // Loop through all layers below this layer and set to 0% opacity.
                         for (int num = layernum - 2; num >= 0; num--)
                         {
-                            dataTexture.alphaMapData[x, y, num] = 0.0f;
+                            heatmap.alphaMapData[x, y, num] = 0.0f;
                         }
                         // Return as correct value has been set for all layers.
                         return;
@@ -558,8 +632,15 @@ namespace TerrainHeatmap
 
         }
 
-        // Assigns the colour value based on the heatMap data to a range of pixels.
-        void AssignVisualisationTextureColorValue(ref Heatmap dataTexture, int startX, int startY, int width, int height)
+        /// <summary>
+        /// Assigns the colour value based on the heatMap data to a range of pixels.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="startX"></param>
+        /// <param name="startY"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        void AssignVisualisationTextureColorValue(ref Heatmap heatmap, int startX, int startY, int width, int height)
         {
 
             // Assign the correct pixel value to each requested pixel.
@@ -567,61 +648,80 @@ namespace TerrainHeatmap
             {
                 for (int y = startY; y < (startY + height); y++)
                 {
-                    AssignVisualisationTextureColorValue(ref dataTexture, x, y);
+                    AssignHeatmapColorValue(ref heatmap, x, y);
                 }
             }
 
         }
 
-        // Interpolate the zero points on the HeatValueMap.
-        float[,] InterpolateColorTextureValues(ref Heatmap visualisationTexture, int alphaMapResolution)
+        /// <summary>
+        /// Interpolate the zero points on the HeatValueMap.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <returns></returns>
+        float[,] InterpolateColorTextureValues(ref Heatmap heatmap, int alphaMapResolution)
         {
             // If the dataTexture Resoloution and the alphaMapResolution match then there is no need to interpolate the data.
-            if (visualisationTexture.heatmapResolution == alphaMapResolution)
+            if (heatmap.heatmapResolution == alphaMapResolution)
             {
-                return InterpolationMethodNone(ref visualisationTexture, alphaMapResolution);
+                return InterpolationMethodNone(ref heatmap, alphaMapResolution);
             }
 
-            switch (visualisationTexture.interpolationMode)
+            switch (heatmap.interpolationMode)
             {
                 case InterpolationMode.NearestNeighbor:
-                    return InterpolationMethodNearestNeighbor(ref visualisationTexture, alphaMapResolution);
+                    return InterpolationMethodNearestNeighbor(ref heatmap, alphaMapResolution);
 
                 case InterpolationMode.Bilinear:
-                    return InterpolationMethodBilinear(ref visualisationTexture, alphaMapResolution);
+                    return InterpolationMethodBilinear(ref heatmap, alphaMapResolution);
 
                 default:
-                    return InterpolationMethodNearestNeighbor(ref visualisationTexture, alphaMapResolution);
+                    return InterpolationMethodNearestNeighbor(ref heatmap, alphaMapResolution);
 
             }
 
         }
 
-        float[,] InterpolateColorTextureValues(ref Heatmap visualisationTexture, int alphaMapResolution, int x, int y, int width, int height)
+        /// <summary>
+        /// Chooses the correct interpolation method.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        float[,] InterpolateColorTextureValues(ref Heatmap heatmap, int alphaMapResolution, int x, int y, int width, int height)
         {
 
             // If the dataTexture Resoloution and the alphaMapResolution match then there is no need to interpolate the data.
-            if (visualisationTexture.heatmapResolution == alphaMapResolution)
+            if (heatmap.heatmapResolution == alphaMapResolution)
             {
-                return InterpolationMethodNone(ref visualisationTexture, alphaMapResolution);
+                return InterpolationMethodNone(ref heatmap, alphaMapResolution);
             }
 
-            switch (visualisationTexture.interpolationMode)
+            switch (heatmap.interpolationMode)
             {
                 case InterpolationMode.NearestNeighbor:
-                    return InterpolationMethodNearestNeighbor(ref visualisationTexture, alphaMapResolution, x, y, width, height);
+                    return InterpolationMethodNearestNeighbor(ref heatmap, alphaMapResolution, x, y, width, height);
 
                 case InterpolationMode.Bilinear:
-                    return InterpolationMethodBilinear(ref visualisationTexture, alphaMapResolution, x, y, width, height);
+                    return InterpolationMethodBilinear(ref heatmap, alphaMapResolution, x, y, width, height);
 
                 default:
-                    return InterpolationMethodNearestNeighbor(ref visualisationTexture, alphaMapResolution, x, y, width, height);
+                    return InterpolationMethodNearestNeighbor(ref heatmap, alphaMapResolution, x, y, width, height);
 
             }
 
         }
 
-        // calculates the offest of the cold value thereshold from 0 if it's negative.
+        /// <summary>
+        /// Calculates the offest of the cold value thereshold from 0 if it's negative.
+        /// </summary>
+        /// <param name="lowerThreshold"></param>
+        /// <returns></returns>
         float CalculateLowerUpperThresholdValueOffset(float lowerThreshold)
         {
             if (lowerThreshold < 0) return Mathf.Abs(lowerThreshold);
@@ -629,15 +729,30 @@ namespace TerrainHeatmap
             return -lowerThreshold;
         }
 
-        // Perform Nearest-Neighbour interpolation.
-        public float[,] InterpolationMethodNearestNeighbor(ref Heatmap visualisationTexture, int alphaMapResolution)
+        /// <summary>
+        /// Perform Nearest-Neighbour interpolation with fewer parameters.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <returns></returns>
+        public float[,] InterpolationMethodNearestNeighbor(ref Heatmap heatmap, int alphaMapResolution)
         {
-            return InterpolationMethodNearestNeighbor(ref visualisationTexture, alphaMapResolution, 0, 0, alphaMapResolution, alphaMapResolution);
+            return InterpolationMethodNearestNeighbor(ref heatmap, alphaMapResolution, 0, 0, alphaMapResolution, alphaMapResolution);
         }
 
+        /// <summary>
+        /// Nearest neighbour interpolation.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         public float[,] InterpolationMethodNearestNeighbor(ref Heatmap heatmap, int alphaMapResolution, int x, int y, int width, int height)
         {
-            float[,] returnValue = new float[width, height];
+            float[,] heatmapValues = new float[width, height];
             float incrementInterval = (alphaMapResolution / heatmap.heatmapResolution);
 
 
@@ -645,52 +760,81 @@ namespace TerrainHeatmap
             {
                 for (int j = y; j < y + height; j++)
                 {
-                    returnValue[i, j] = this.GetClosestDataPoint(ref heatmap, i, j, alphaMapResolution, incrementInterval).value;
+                    heatmapValues[i, j] = this.GetClosestDataPoint(ref heatmap, i, j, alphaMapResolution, incrementInterval).value;
                 }
             }
 
 
-            return returnValue;
+            return heatmapValues;
         }
 
-        // No Interpolation, just extract the mapData we have (When  DataPoint resolution matches the alphamapResolution this is the default).
-        public float[,] InterpolationMethodNone(ref Heatmap visualisationTexture, int alphaMapResolution)
+        /// <summary>
+        /// No Interpolation, just extract the mapData we have (When  DataPoint resolution matches the alphamapResolution this is the default).
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <returns></returns>
+        public float[,] InterpolationMethodNone(ref Heatmap heatmap, int alphaMapResolution)
         {
-            return InterpolationMethodNone(ref visualisationTexture, 0, 0, alphaMapResolution, alphaMapResolution);
+            return InterpolationMethodNone(ref heatmap, 0, 0, alphaMapResolution, alphaMapResolution);
         }
 
-        public float[,] InterpolationMethodNone(ref Heatmap visualisationTexture, int x, int y, int width, int height)
+        /// <summary>
+        /// No Interpolation, just extract the mapData we have (When  DataPoint resolution matches the alphamapResolution this is the default).
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public float[,] InterpolationMethodNone(ref Heatmap heatmap, int x, int y, int width, int height)
         {
-            float[,] returnValue = new float[width, height];
+            float[,] heatmapValues = new float[width, height];
 
             for (int i = x; i < x + width; i++)
             {
                 for (int j = y; j < y + height; j++)
                 {
-                    returnValue[i, j] = visualisationTexture.mapData[i, j].value;
+                    heatmapValues[i, j] = heatmap.mapData[i, j].value;
                 }
             }
 
-            return returnValue;
+            return heatmapValues;
         }
 
 
-        // Perform Bi-Linear interpolation.
-        public float[,] InterpolationMethodBilinear(ref Heatmap visualisationTexture, int alphaMapResolution)
+        /// <summary>
+        /// Perform Bi-Linear interpolation with fewer parameters.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <returns></returns>
+        public float[,] InterpolationMethodBilinear(ref Heatmap heatmap, int alphaMapResolution)
         {
-            return InterpolationMethodBilinear(ref visualisationTexture, alphaMapResolution, 0, 0, alphaMapResolution, alphaMapResolution);
+            return InterpolationMethodBilinear(ref heatmap, alphaMapResolution, 0, 0, alphaMapResolution, alphaMapResolution);
         }
 
-        public float[,] InterpolationMethodBilinear(ref Heatmap visualisationTexture, int alphaMapResolution, int x, int y, int width, int height)
+        /// <summary>
+        /// // Perform Bi-Linear interpolation.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        public float[,] InterpolationMethodBilinear(ref Heatmap heatmap, int alphaMapResolution, int x, int y, int width, int height)
         {
-            float[,] returnValue = new float[width, height];
-            float incrementInterval = (alphaMapResolution / (visualisationTexture.heatmapResolution));
+            float[,] heatmapValues = new float[width, height];
+            float incrementInterval = (alphaMapResolution / (heatmap.heatmapResolution));
 
             for (int i = x; i < x + width; i++)
             {
                 for (int j = y; j < y + height; j++)
                 {
-                    HeatmapDatum[,] qPoints = GetQPoints(ref visualisationTexture, i, j, alphaMapResolution, incrementInterval);
+                    HeatmapDatum[,] qPoints = GetQPoints(ref heatmap, i, j, alphaMapResolution, incrementInterval);
 
                     float xT, yT, rOne, rTwo;
 
@@ -700,17 +844,25 @@ namespace TerrainHeatmap
                     rOne = Mathf.Lerp(qPoints[0, 0].value, qPoints[1, 0].value, xT);
                     rTwo = Mathf.Lerp(qPoints[0, 1].value, qPoints[1, 1].value, xT);
 
-                    returnValue[i, j] = Mathf.Lerp(rOne, rTwo, yT);
+                    heatmapValues[i, j] = Mathf.Lerp(rOne, rTwo, yT);
 
                 }
             }
 
-            return returnValue;
+            return heatmapValues;
         }
 
 
-        // Retrieves QPoints for interpolation.
-        HeatmapDatum[,] GetQPoints(ref Heatmap visualisationTexture, int x, int y, int alphaMapResolution, float incrementInterval)
+        /// <summary>
+        /// Retrieves QPoints for interpolation.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="incrementInterval"></param>
+        /// <returns></returns>
+        HeatmapDatum[,] GetQPoints(ref Heatmap heatmap, int x, int y, int alphaMapResolution, float incrementInterval)
         {
             HeatmapDatum[,] qPoints = new HeatmapDatum[2, 2];
 
@@ -718,28 +870,45 @@ namespace TerrainHeatmap
             int yGridSquare = Mathf.FloorToInt(((float)y / incrementInterval));
 
 
-            qPoints[0, 0] = visualisationTexture.mapData[xGridSquare, yGridSquare];
-            qPoints[0, 1] = visualisationTexture.mapData[xGridSquare, yGridSquare + 1];
-            qPoints[1, 0] = visualisationTexture.mapData[xGridSquare + 1, yGridSquare];
-            qPoints[1, 1] = visualisationTexture.mapData[xGridSquare + 1, yGridSquare + 1];
+            qPoints[0, 0] = heatmap.mapData[xGridSquare, yGridSquare];
+            qPoints[0, 1] = heatmap.mapData[xGridSquare, yGridSquare + 1];
+            qPoints[1, 0] = heatmap.mapData[xGridSquare + 1, yGridSquare];
+            qPoints[1, 1] = heatmap.mapData[xGridSquare + 1, yGridSquare + 1];
 
             return qPoints;
 
         }
 
-        // Returns the closest data point to texture coordinate.
-        HeatmapDatum GetClosestDataPoint(ref Heatmap dataTexture, int x, int y, int alphaMapResolution, float incrementInterval)
+        /// <summary>
+        /// Returns the closest data point to texture coordinate.
+        /// </summary>
+        /// <param name="heatmap"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="incrementInterval"></param>
+        /// <returns></returns>
+        HeatmapDatum GetClosestDataPoint(ref Heatmap heatmap, int x, int y, int alphaMapResolution, float incrementInterval)
         {
             HeatmapDatum closetDataPoint;
 
             int xGridSquare = Mathf.RoundToInt(x / incrementInterval);
             int yGridSquare = Mathf.RoundToInt(y / incrementInterval);
 
-            closetDataPoint = dataTexture.mapData[xGridSquare, yGridSquare];
+            closetDataPoint = heatmap.mapData[xGridSquare, yGridSquare];
 
             return closetDataPoint;
         }
 
+        /// <summary>
+        /// Get the postion of the closest data point to a given world position.
+        /// </summary>
+        /// <param name="worldPosition"></param>
+        /// <param name="terrainSize"></param>
+        /// <param name="dataTextureResolution"></param>
+        /// <param name="alphaMapResolution"></param>
+        /// <param name="incrementInterval"></param>
+        /// <returns></returns>
         public Vector3 GetClosestDataPointPosition(Vector3 worldPosition, Vector3 terrainSize, int dataTextureResolution, int alphaMapResolution, float incrementInterval)
         {
             Vector3 closestDataPoint;

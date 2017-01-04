@@ -1,4 +1,11 @@
-﻿
+﻿//************************************************************************
+// Copyright (C) Torchbearer Interactive, Ltd. - All Rights Reserved
+// 
+// Unauthorized copying of this file, via any medium is strictly prohibited
+// Proprietary and confidential
+// 
+// Written by: Edward S Andrew - ed@tbinteractive.co.uk 2017
+//************************************************************************
 namespace TerrainHeatmap
 {
     // Enum for the Interpolation Mode.

@@ -4,7 +4,7 @@
 // Unauthorized copying of this file, via any medium is strictly prohibited
 // Proprietary and confidential
 // 
-// Written by: Edward S Andrew - ed@tbinteractive.co.uk 2016
+// Written by: Edward S Andrew - ed@tbinteractive.co.uk 2017
 //************************************************************************
 using UnityEngine;
 using System.Collections;
