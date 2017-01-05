@@ -524,6 +524,7 @@ namespace TerrainHeatmap
                         {
                             customDataArray = GetCustomDataPointArray();
                         }
+                        int currentheatmap = SelectedHeatmapIndex;
                         for (int x = 0; x < RTChunks; x++)
                         {
                             for (int y = 0; y < RTChunks; y++)
@@ -557,6 +558,11 @@ namespace TerrainHeatmap
 
                                 if (abortLoop) continue;
                                 if (!DisplayHeatmap) { continue; }
+                                if (selectedHeatmap != SelectedHeatmapIndex)
+                                {
+                                    abortLoop = true;
+                                    break;
+                                }
 
                                 if (SelectedHeatmap.splatPrototypes.Length != splatPrototypeLength) { continue; }
                                 if (SelectedHeatmap.splatPrototypes.Length != Generator.processedAlphaMap.GetLength(2)) { continue; }
