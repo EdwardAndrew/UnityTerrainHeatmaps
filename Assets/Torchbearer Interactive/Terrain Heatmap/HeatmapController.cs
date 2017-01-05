@@ -562,6 +562,9 @@ namespace TerrainHeatmap
                                 if (SelectedHeatmap.splatPrototypes.Length != Generator.processedAlphaMap.GetLength(2)) { continue; }
                                 if (selectedHeatmap != SelectedHeatmapIndex) { continue; }
 
+                                if (_terrain == null) break;
+
+                                if (SelectedHeatmap.splatPrototypes[0].texture == null) break;
                                 _terrain.terrainData.splatPrototypes = SelectedHeatmap.splatPrototypes;
                                 _terrain.terrainData.SetAlphamaps(x * chunkSize, y * chunkSize, Generator.processedAlphaMap);
 
