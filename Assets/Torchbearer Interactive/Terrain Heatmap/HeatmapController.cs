@@ -545,7 +545,7 @@ namespace TerrainHeatmap
                                 Vector3 position = transform.position;
                                 Generator.ProcessHeatMapThreaded(selectedHeatmap, ref _heatmaps, _terrainData.GetHeights(0, 0, _terrainData.heightmapResolution, _terrainData.heightmapResolution), _terrainData.alphamapResolution, _terrainData.size, _terrain.terrainData.heightmapScale, y * chunkSize, x * chunkSize, chunkSize, chunkSize, customDataArray, position);
 
-                                while (Generator.isGenerateHeatMapThreadFinished == false)
+                                while (Generator.isGenerateHeatmapThreadFinished == false)
                                 {
                                     if (Time.realtimeSinceStartup - threadStartTime >= _realTimeUpdateThreadTimeout)
                                     {

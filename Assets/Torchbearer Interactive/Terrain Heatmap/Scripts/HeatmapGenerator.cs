@@ -23,7 +23,7 @@ namespace TerrainHeatmap
     {
 
         Thread _generateHeatMapThread;
-        public bool isGenerateHeatMapThreadFinished = true;
+        public bool isGenerateHeatmapThreadFinished = true;
 
         int _selectedTextureIndex;
         List<Heatmap> _heatmaps;
@@ -56,7 +56,7 @@ namespace TerrainHeatmap
         {
             GenerateHeatMap(_selectedTextureIndex, ref _heatmaps, _alphaMapResolution, _terrainObjectSize, terrainX, terrainY, _width, _height, _heightMap, _heightMapScale, false, _customData, _positionOffset);
             processedAlphaMap = Chunks.GetAlphaMapChunk(_originalAlphaMap, terrainY, terrainX, _width, _height);
-            isGenerateHeatMapThreadFinished = true;
+            isGenerateHeatmapThreadFinished = true;
         }
 
         /// <summary>
@@ -76,7 +76,7 @@ namespace TerrainHeatmap
         /// <param name="positionOffset"></param>
         public void ProcessHeatMapThreaded(int selectedTextureIndex, ref List<Heatmap> heatmaps, float[,] heightMap, int alphaMapResolution, Vector3 terrainObjectSize, Vector3 heightMapScale, int x, int y, int width, int height, HeatmapNode[] customData, Vector3 positionOffset)
         {
-            isGenerateHeatMapThreadFinished = false;
+            isGenerateHeatmapThreadFinished = false;
 
             _selectedTextureIndex = selectedTextureIndex;
             _heatmaps = heatmaps;
@@ -158,7 +158,7 @@ namespace TerrainHeatmap
             {
                 if (selectedHeatmap.splatPrototypes == null)
                 {
-                    if (!isGenerateHeatMapThreadFinished) return;
+                    if (!isGenerateHeatmapThreadFinished) return;
                     selectedHeatmap.splatPrototypes = GenerateSplatPrototypes(selectedHeatmap);
                 }
             }

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 
 namespace TerrainHeatmap
 {
+
     [System.Serializable]
     public class Heatmap
     {
@@ -52,10 +53,6 @@ namespace TerrainHeatmap
             baseValue = 0.0f;
             filter = "";
 
-        }
-
-        public Heatmap()
-        {
         }
     }
 }
