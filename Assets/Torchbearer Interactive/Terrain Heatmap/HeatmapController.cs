@@ -677,8 +677,8 @@ namespace TerrainHeatmap
             if (_heatmapController && _heatmapController.Initialised == false)
             {
                 _heatmapController.Initialise();
-
             }
+            EditorApplication.update += _heatmapController.EditorUpdate;
             if (_heatmapController && _heatmapController.EditorUpdateInitialised == false)
             {
                 EditorApplication.update += _heatmapController.EditorUpdate;
