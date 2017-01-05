@@ -610,6 +610,23 @@ namespace TerrainHeatmap
             #endif
         }
 
+        /// <summary>
+        /// Checks if there reference Terrain Object is square with a size the power of two. (To avoid rounding errors when using Bilinear interpolation).
+        /// </summary>
+        /// <returns>Returns true if the reference Terrain Object is square in size with sizes the power of two.</returns>
+        public bool IsReferenceTerrainSizePowerOfTwo()
+        {
+
+            if (referenceTerrainObject == null || referenceTerrainObject.terrainData == null || referenceTerrainObject.terrainData.size.x != referenceTerrainObject.terrainData.size.z) return false;
+
+            for (int size = 1; size <= referenceTerrainObject.terrainData.size.x; size*=2)
+            {
+                if (size == referenceTerrainObject.terrainData.size.x) return true;
+            }
+
+            return false;
+        }
+
 
     }
 
@@ -624,6 +641,7 @@ namespace TerrainHeatmap
         bool _isSceneViewUpdateRequired = false;
         int _selectedTextureGrid = 0;
         CustomTextureSettingsWindow _tWindow;
+        bool _displayBilinearWarningMessage = false;
 
         static Texture s_tbLogo;
 
@@ -897,7 +915,39 @@ namespace TerrainHeatmap
         /// </summary>
         void DisplayHeatmapInterpolationMode()
         {
+            EditorGUI.BeginChangeCheck();
             _heatmapController.SelectedHeatmap.interpolationMode = (InterpolationMode)EditorGUILayout.EnumPopup("Interpolation Mode", _heatmapController.SelectedHeatmap.interpolationMode);
+            EditorGUI.EndChangeCheck();
+            if(GUI.changed)
+            {
+                if(_heatmapController.SelectedHeatmap.interpolationMode == InterpolationMode.Bilinear)
+                {
+                    // Check if we need to display the warning message and if we do enable it.
+                    _displayBilinearWarningMessage = !_heatmapController.IsReferenceTerrainSizePowerOfTwo();
+                }
+                else
+                {
+                    // If we're already displaying the warning message hide it.
+                    _displayBilinearWarningMessage = false;
+                }
+            }
+
+            // If warning message is enabled then display it here.
+            if (_displayBilinearWarningMessage)
+            {
+                DisplayBilinearWarningMessageGUI();
+            }
+        }
+        /// <summary>
+        /// Draws the warning message for Bilinear interpolation mode rounding errors.
+        /// </summary>
+        void DisplayBilinearWarningMessageGUI()
+        {
+            HorizontalLine();
+            EditorGUILayout.HelpBox("Reference Terrain object size X and Z do not match, or are not a power of two. This can cause rounding errors with the Bilinear Interpolation mode.", MessageType.Warning);
+            if(GUILayout.Button("Dismiss warning message.")) _displayBilinearWarningMessage = false;
+            HorizontalLine();
+            
         }
 
         /// <summary>
