@@ -306,7 +306,7 @@ namespace TerrainHeatmap
             _heatmaps = new List<Heatmap>();
             AddNewHeatmap();
 
-            GenerateHeatmap();
+            if(referenceTerrainObject != null)GenerateHeatmap();
 
             _initialised = true;
         }
