@@ -380,6 +380,7 @@ namespace TerrainHeatmap
         /// </summary>
         void Update()
         {
+            if (referenceTerrainObject == null) return;
             if (_realTimeUpdateEnabled)
             {
                 if (_realtimeHeatmapUpdate == null) _realtimeHeatmapUpdate = RealTimeHeatmapUpdate();
@@ -393,6 +394,7 @@ namespace TerrainHeatmap
         /// </summary>
         public void EditorUpdate()
         {
+            if (referenceTerrainObject == null) return;
             if (_realTimeEditorUpdateEnabled)
             {
                 if (_realtimeHeatmapUpdate == null) _realtimeHeatmapUpdate = RealTimeHeatmapUpdate();
