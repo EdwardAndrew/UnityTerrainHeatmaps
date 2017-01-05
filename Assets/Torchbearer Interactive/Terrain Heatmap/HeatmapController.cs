@@ -638,6 +638,14 @@ namespace TerrainHeatmap
             return false;
         }
 
+        public void FlipConstraints()
+        {
+            float temp = SelectedHeatmap.upperValueThreshold;
+
+            SelectedHeatmap.upperValueThreshold = SelectedHeatmap.lowerValueThreshold;
+            SelectedHeatmap.lowerValueThreshold = temp;
+        }
+
         [MenuItem("Torchbearer Interactive/Terrain Heatmap/Create New HeatmapController")]
         static void CreateNewHeatmapController()
         {
@@ -882,8 +890,8 @@ namespace TerrainHeatmap
         {
             DisplayHeatmapName();
             DisplayBaseValue();
-            DisplayFlipConstraints();
             DisplayHeatmapConstraints();
+            DisplayFlipConstraints();
             DisplayHeatmapResolution();
             DisplayHeatmapInterpolationMode();
             DisplayHeatmapDataSource();
@@ -895,7 +903,10 @@ namespace TerrainHeatmap
         /// </summary>
         void DisplayFlipConstraints()
         {
-            _heatmapController.SelectedHeatmap.displayFlippedConstraints = EditorGUILayout.Toggle("Flip Textures", _heatmapController.SelectedHeatmap.displayFlippedConstraints);
+            if (_heatmapController.SelectedHeatmap.autoConstrain == false)
+            {
+                if (GUILayout.Button("Flip Constraints")) _heatmapController.FlipConstraints();
+            }
         }
 
 
@@ -912,12 +923,19 @@ namespace TerrainHeatmap
         /// </summary>
         void DisplayHeatmapConstraints()
         {
+            GUILayout.BeginHorizontal();
             _heatmapController.SelectedHeatmap.autoConstrain = EditorGUILayout.Toggle("Auto Constrain",_heatmapController.SelectedHeatmap.autoConstrain);
 
             if(_heatmapController.SelectedHeatmap.autoConstrain == false)
             {
+                GUILayout.EndHorizontal();
                 _heatmapController.SelectedHeatmap.upperValueThreshold = EditorGUILayout.FloatField("    Highest Value Limit", _heatmapController.SelectedHeatmap.upperValueThreshold);
                 _heatmapController.SelectedHeatmap.lowerValueThreshold = EditorGUILayout.FloatField("    Lower Value Limit", _heatmapController.SelectedHeatmap.lowerValueThreshold);
+            }
+            else
+            {
+                _heatmapController.SelectedHeatmap.displayFlippedConstraints = GUILayout.Toggle(_heatmapController.SelectedHeatmap.displayFlippedConstraints,"Flip");
+                GUILayout.EndHorizontal();
             }
         }
 
@@ -1007,13 +1025,6 @@ namespace TerrainHeatmap
             }
         }
 
-        /// <summary>
-        /// Display the toggle to flip the constraints of the selected Heatmap.
-        /// </summary>
-        void DisplayHeatmapFlipTextures()
-        {
-            _heatmapController.SelectedHeatmap.displayFlippedConstraints = EditorGUILayout.Toggle("Flip Textures", _heatmapController.SelectedHeatmap.displayFlippedConstraints);
-        }
     
         /// <summary>
         /// Display the custom textures of the selected Heatmap.

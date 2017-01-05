@@ -23,7 +23,6 @@ namespace TerrainHeatmap
         public float[,] visualisationValueMap;
         public float lowerValueThreshold;
         public float upperValueThreshold;
-        public float coldHotValueOffset;
         public string name;
         public TextureSource texSource;
         public SplatPrototype[] splatPrototypes;
@@ -44,7 +43,6 @@ namespace TerrainHeatmap
             visualisationValueMap = null;
             lowerValueThreshold = 0;
             upperValueThreshold = 100;
-            coldHotValueOffset = 0;
             name = _name;
             texSource = TextureSource.DefaultColors;
             splatPrototypes = null;

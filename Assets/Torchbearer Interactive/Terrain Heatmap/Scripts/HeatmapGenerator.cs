@@ -148,15 +148,10 @@ namespace TerrainHeatmap
                 selectedHeatmap = heatmaps[selectedTextureIndex];
             }
 
-            float originalUpperValueThreshold = selectedHeatmap.upperValueThreshold;
-            float originalLowerValueThreshold = selectedHeatmap.lowerValueThreshold;
-
             if ((selectedHeatmap.texSource == TextureSource.Custom) && (selectedHeatmap.dataVisualisaitonSplatMaps.Count <= 0))
             {
                 return;
             }
-
-            if (selectedHeatmap.displayFlippedConstraints) selectedHeatmap = this.FlipHeatmapConstraints(selectedTextureIndex, ref heatmaps);
 
             // Generate splatPrototypes for heatMap.
             if (!splatMapUpdateOverride)
@@ -173,8 +168,6 @@ namespace TerrainHeatmap
                 selectedHeatmap.alphaMapData = new float[alphaMapResolution, alphaMapResolution, selectedHeatmap.splatPrototypes.Length];
             }
 
-            if (!selectedHeatmap.displayFlippedConstraints) selectedHeatmap.coldHotValueOffset = CalculateLowerUpperThresholdValueOffset(selectedHeatmap.lowerValueThreshold);
-
             // Create array that will be the heatmap splatPrototypes information.
             if (selectedHeatmap.alphaMapData == null)
             {
@@ -187,18 +180,13 @@ namespace TerrainHeatmap
             // Load Genereated heatMap data into Array.
             AssignMapData(selectedHeatmap, alphaMapResolution, terrainObjectSize, heightMap, heightMapScale, customData, positionOffset);
 
-            if (selectedHeatmap.autoConstrain) AutoConstrainValues(ref selectedHeatmap, selectedHeatmap.displayFlippedConstraints);
-            if (selectedHeatmap.displayFlippedConstraints) selectedHeatmap.coldHotValueOffset = CalculateLowerUpperThresholdValueOffset(selectedHeatmap.lowerValueThreshold);
-
+            if (selectedHeatmap.autoConstrain) AutoConstrainValues(ref selectedHeatmap);
 
             // Interpolate the data on the Heat value Map.
             selectedHeatmap.visualisationValueMap = InterpolateColorTextureValues(ref selectedHeatmap, alphaMapResolution);
 
             // Assignt the correct HeatMap Color value to each pixel on the Terrain.
             AssignVisualisationTextureColorValue(ref selectedHeatmap, x, y, width, height);
-
-            selectedHeatmap.lowerValueThreshold = originalLowerValueThreshold;
-            selectedHeatmap.upperValueThreshold = originalUpperValueThreshold;
 
         }
 
@@ -207,7 +195,7 @@ namespace TerrainHeatmap
         /// </summary>
         /// <param name="heatmap"></param>
         /// <param name="flipConstraints"></param>
-        void AutoConstrainValues(ref Heatmap heatmap, bool flipConstraints)
+        void AutoConstrainValues(ref Heatmap heatmap)
         {
             float upperValue = heatmap.mapData[0, 0].value;
             float lowerValue = heatmap.mapData[0, 0].value;
@@ -218,17 +206,8 @@ namespace TerrainHeatmap
                 if (datum.value < lowerValue) lowerValue = datum.value;
             }
 
-            if (!flipConstraints)
-            {
-
-                heatmap.lowerValueThreshold = lowerValue + 1;
-                heatmap.upperValueThreshold = upperValue - 1;
-            }
-            else
-            {
-                heatmap.upperValueThreshold = lowerValue + 1;
-                heatmap.lowerValueThreshold = upperValue - 1;
-            }
+            heatmap.upperValueThreshold = heatmap.displayFlippedConstraints ? lowerValue : upperValue;
+            heatmap.lowerValueThreshold = heatmap.displayFlippedConstraints ? upperValue : lowerValue;
 
         }
 
