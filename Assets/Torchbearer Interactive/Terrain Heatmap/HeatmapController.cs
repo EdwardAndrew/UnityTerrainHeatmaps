@@ -627,6 +627,26 @@ namespace TerrainHeatmap
             return false;
         }
 
+        [MenuItem("Torchbearer Interactive/Terrain Heatmap/Create New HeatmapController")]
+        static void CreateNewHeatmapController()
+        {
+            GameObject newHeatmapController = new GameObject("HeatmapController");
+
+            newHeatmapController.AddComponent<HeatmapController>();
+        }
+
+        [MenuItem("Torchbearer Interactive/Terrain Heatmap/Add Custom Heatmap Node to Selected GameObjects")]
+        static void AddCustomHeatmapNodeToSelectedObjects()
+        {
+            GameObject[] objsInSelection = Selection.gameObjects;
+
+            foreach(GameObject gameObject in objsInSelection)
+            {
+                gameObject.AddComponent<HeatmapNode>();
+            }
+
+        }
+
 
     }
 
