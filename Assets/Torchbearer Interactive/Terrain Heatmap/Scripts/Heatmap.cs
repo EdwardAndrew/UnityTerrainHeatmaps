@@ -17,40 +17,38 @@ namespace TerrainHeatmap
     public class Heatmap
     {
         public int heatmapResolution;
-        public bool displayFlippedConstraints;
+        public bool flipAutoConstrain;
         public bool autoConstrain;
         public float[,,] alphaMapData;
-        public float[,] visualisationValueMap;
-        public float lowerValueThreshold;
-        public float upperValueThreshold;
+        public float[,] heatmapValues;
+        public float lowerValueLimit;
+        public float higherValueLimit;
         public string name;
         public TextureSource texSource;
         public SplatPrototype[] splatPrototypes;
         public InterpolationMode interpolationMode;       
-        public HeatmapDatum[,] mapData;
+        public HeatmapDatum[,] heatmapDataPoints;
         public HeatmapData dataType;
-        public List<HeatmapSplatprototype> dataVisualisaitonSplatMaps;
-        public bool splatPrototypesUpdated;
+        public List<HeatmapSplatprototype> heatmapSplatMaps;
         public float baseValue;
         public string filter;
 
         public Heatmap(string _name)
         {
             heatmapResolution = 64;
-            displayFlippedConstraints = false;
+            flipAutoConstrain = false;
             autoConstrain = false;
             alphaMapData = null;
-            visualisationValueMap = null;
-            lowerValueThreshold = 0;
-            upperValueThreshold = 100;
+            heatmapValues = null;
+            lowerValueLimit = 0;
+            higherValueLimit = 100;
             name = _name;
             texSource = TextureSource.DefaultColors;
             splatPrototypes = null;
             interpolationMode = InterpolationMode.NearestNeighbor;
-            mapData = null;
+            heatmapDataPoints = null;
             dataType = HeatmapData.HeightMap;
-            dataVisualisaitonSplatMaps = new List<HeatmapSplatprototype>();
-            splatPrototypesUpdated = false;
+            heatmapSplatMaps = new List<HeatmapSplatprototype>();
             baseValue = 0.0f;
             filter = "";
 

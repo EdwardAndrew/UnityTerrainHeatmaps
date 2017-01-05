@@ -640,10 +640,10 @@ namespace TerrainHeatmap
 
         public void FlipConstraints()
         {
-            float temp = SelectedHeatmap.upperValueThreshold;
+            float temp = SelectedHeatmap.higherValueLimit;
 
-            SelectedHeatmap.upperValueThreshold = SelectedHeatmap.lowerValueThreshold;
-            SelectedHeatmap.lowerValueThreshold = temp;
+            SelectedHeatmap.higherValueLimit = SelectedHeatmap.lowerValueLimit;
+            SelectedHeatmap.lowerValueLimit = temp;
         }
 
         [MenuItem("Torchbearer Interactive/Terrain Heatmap/Create New HeatmapController")]
@@ -929,12 +929,12 @@ namespace TerrainHeatmap
             if(_heatmapController.SelectedHeatmap.autoConstrain == false)
             {
                 GUILayout.EndHorizontal();
-                _heatmapController.SelectedHeatmap.upperValueThreshold = EditorGUILayout.FloatField("    Highest Value Limit", _heatmapController.SelectedHeatmap.upperValueThreshold);
-                _heatmapController.SelectedHeatmap.lowerValueThreshold = EditorGUILayout.FloatField("    Lower Value Limit", _heatmapController.SelectedHeatmap.lowerValueThreshold);
+                _heatmapController.SelectedHeatmap.higherValueLimit = EditorGUILayout.FloatField("    Highest Value Limit", _heatmapController.SelectedHeatmap.higherValueLimit);
+                _heatmapController.SelectedHeatmap.lowerValueLimit = EditorGUILayout.FloatField("    Lower Value Limit", _heatmapController.SelectedHeatmap.lowerValueLimit);
             }
             else
             {
-                _heatmapController.SelectedHeatmap.displayFlippedConstraints = GUILayout.Toggle(_heatmapController.SelectedHeatmap.displayFlippedConstraints,"Flip");
+                _heatmapController.SelectedHeatmap.flipAutoConstrain = GUILayout.Toggle(_heatmapController.SelectedHeatmap.flipAutoConstrain,"Flip");
                 GUILayout.EndHorizontal();
             }
         }
@@ -1050,15 +1050,15 @@ namespace TerrainHeatmap
                 gridStyling.normal.background = TextureGenerator.GenerateTexture2D(new Color(0.17f, 0.17f, 0.17f), gridSquareSize, gridSquareSize);
 
                 GUI.skin.customStyles[0] = gridStyling;
-                if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps != null)
+                if (_heatmapController.SelectedHeatmap.heatmapSplatMaps != null)
                 {
-                    _selectedTextureGrid = GUILayout.SelectionGrid(_selectedTextureGrid, GetSplatPrototypesAsTexture2DArray(_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps), gridRowCount, GUI.skin.customStyles[0]);
+                    _selectedTextureGrid = GUILayout.SelectionGrid(_selectedTextureGrid, GetSplatPrototypesAsTexture2DArray(_heatmapController.SelectedHeatmap.heatmapSplatMaps), gridRowCount, GUI.skin.customStyles[0]);
                 }
 
                 EditorGUILayout.BeginHorizontal();
                 if (GUILayout.Button("Add Texture"))
                 {
-                    _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps = _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps == null ? new List<HeatmapSplatprototype>() : _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps;
+                    _heatmapController.SelectedHeatmap.heatmapSplatMaps = _heatmapController.SelectedHeatmap.heatmapSplatMaps == null ? new List<HeatmapSplatprototype>() : _heatmapController.SelectedHeatmap.heatmapSplatMaps;
 
                     if (_tWindow != null) _tWindow.Close();
                     _tWindow = CustomTextureSettingsWindow.Setup(this);
@@ -1068,21 +1068,21 @@ namespace TerrainHeatmap
                 {
                     if (_tWindow != null) _tWindow.Close();
                     _tWindow = CustomTextureSettingsWindow.Setup(this);
-                    _tWindow.ShowEditLayer(_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps[_selectedTextureGrid]);
+                    _tWindow.ShowEditLayer(_heatmapController.SelectedHeatmap.heatmapSplatMaps[_selectedTextureGrid]);
                 }
                 if (GUILayout.Button("Remove Texture"))
                 {
                     if(_heatmapController.SelectedHeatmap.texSource == TextureSource.Custom)
                     {
-                        if(_selectedTextureGrid >= 0 && _selectedTextureGrid < _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count)
+                        if(_selectedTextureGrid >= 0 && _selectedTextureGrid < _heatmapController.SelectedHeatmap.heatmapSplatMaps.Count)
                         {
-                            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.RemoveAt(_selectedTextureGrid);
+                            _heatmapController.SelectedHeatmap.heatmapSplatMaps.RemoveAt(_selectedTextureGrid);
                         }
                     }
                 }
                 EditorGUILayout.EndHorizontal();
 
-                if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps == null ||_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count <= 0) DisplayNoHeatmapSplatprototypeWarning();
+                if (_heatmapController.SelectedHeatmap.heatmapSplatMaps == null ||_heatmapController.SelectedHeatmap.heatmapSplatMaps.Count <= 0) DisplayNoHeatmapSplatprototypeWarning();
             }
         }
 
@@ -1197,7 +1197,7 @@ namespace TerrainHeatmap
         {
             SplatPrototype[] splatMaps = _heatmapController.Splatprototypes;
 
-            if (_heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Count != splatMaps.Length)
+            if (_heatmapController.SelectedHeatmap.heatmapSplatMaps.Count != splatMaps.Length)
             {
                 return;
             }
@@ -1224,7 +1224,7 @@ namespace TerrainHeatmap
         /// <param name="newHeatmapSplatprototype"></param>
         public void AddHeatmapSplatPrototype(HeatmapSplatprototype newHeatmapSplatprototype)
         {
-            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Add(newHeatmapSplatprototype);
+            _heatmapController.SelectedHeatmap.heatmapSplatMaps.Add(newHeatmapSplatprototype);
         }
 
         /// <summary>
@@ -1233,8 +1233,8 @@ namespace TerrainHeatmap
         /// <param name="newSplatPrototype"></param>
         public void UpdateSelectedSplatPrototype(HeatmapSplatprototype newSplatPrototype)
         {
-            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.RemoveAt(_selectedTextureGrid);
-            _heatmapController.SelectedHeatmap.dataVisualisaitonSplatMaps.Insert(_selectedTextureGrid,newSplatPrototype);
+            _heatmapController.SelectedHeatmap.heatmapSplatMaps.RemoveAt(_selectedTextureGrid);
+            _heatmapController.SelectedHeatmap.heatmapSplatMaps.Insert(_selectedTextureGrid,newSplatPrototype);
         }
 
         /// <summary>

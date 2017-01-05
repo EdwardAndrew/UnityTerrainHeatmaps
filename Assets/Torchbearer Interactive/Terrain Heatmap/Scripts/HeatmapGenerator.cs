@@ -148,7 +148,7 @@ namespace TerrainHeatmap
                 selectedHeatmap = heatmaps[selectedTextureIndex];
             }
 
-            if ((selectedHeatmap.texSource == TextureSource.Custom) && (selectedHeatmap.dataVisualisaitonSplatMaps.Count <= 0))
+            if ((selectedHeatmap.texSource == TextureSource.Custom) && (selectedHeatmap.heatmapSplatMaps.Count <= 0))
             {
                 return;
             }
@@ -156,7 +156,7 @@ namespace TerrainHeatmap
             // Generate splatPrototypes for heatMap.
             if (!splatMapUpdateOverride)
             {
-                if (selectedHeatmap.splatPrototypes == null || selectedHeatmap.splatPrototypesUpdated)
+                if (selectedHeatmap.splatPrototypes == null)
                 {
                     if (!isGenerateHeatMapThreadFinished) return;
                     selectedHeatmap.splatPrototypes = GenerateSplatPrototypes(selectedHeatmap);
@@ -175,7 +175,7 @@ namespace TerrainHeatmap
             }
 
             // Create Value Map.
-            selectedHeatmap.visualisationValueMap = new float[alphaMapResolution, alphaMapResolution];
+            selectedHeatmap.heatmapValues = new float[alphaMapResolution, alphaMapResolution];
 
             // Load Genereated heatMap data into Array.
             AssignMapData(selectedHeatmap, alphaMapResolution, terrainObjectSize, heightMap, heightMapScale, customData, positionOffset);
@@ -183,7 +183,7 @@ namespace TerrainHeatmap
             if (selectedHeatmap.autoConstrain) AutoConstrainValues(ref selectedHeatmap);
 
             // Interpolate the data on the Heat value Map.
-            selectedHeatmap.visualisationValueMap = InterpolateColorTextureValues(ref selectedHeatmap, alphaMapResolution);
+            selectedHeatmap.heatmapValues = InterpolateColorTextureValues(ref selectedHeatmap, alphaMapResolution);
 
             // Assignt the correct HeatMap Color value to each pixel on the Terrain.
             AssignVisualisationTextureColorValue(ref selectedHeatmap, x, y, width, height);
@@ -197,17 +197,17 @@ namespace TerrainHeatmap
         /// <param name="flipConstraints"></param>
         void AutoConstrainValues(ref Heatmap heatmap)
         {
-            float upperValue = heatmap.mapData[0, 0].value;
-            float lowerValue = heatmap.mapData[0, 0].value;
+            float upperValue = heatmap.heatmapDataPoints[0, 0].value;
+            float lowerValue = heatmap.heatmapDataPoints[0, 0].value;
 
-            foreach (HeatmapDatum datum in heatmap.mapData)
+            foreach (HeatmapDatum datum in heatmap.heatmapDataPoints)
             {
                 if (datum.value > upperValue) upperValue = datum.value;
                 if (datum.value < lowerValue) lowerValue = datum.value;
             }
 
-            heatmap.upperValueThreshold = heatmap.displayFlippedConstraints ? lowerValue : upperValue;
-            heatmap.lowerValueThreshold = heatmap.displayFlippedConstraints ? upperValue : lowerValue;
+            heatmap.higherValueLimit = heatmap.flipAutoConstrain ? lowerValue : upperValue;
+            heatmap.lowerValueLimit = heatmap.flipAutoConstrain ? upperValue : lowerValue;
 
         }
 
@@ -269,7 +269,7 @@ namespace TerrainHeatmap
         {
             List<SplatPrototype> splats = new List<SplatPrototype>();
 
-            foreach (HeatmapSplatprototype layer in datatexture.dataVisualisaitonSplatMaps)
+            foreach (HeatmapSplatprototype layer in datatexture.heatmapSplatMaps)
             {
                 SplatPrototype a = new SplatPrototype();
 
@@ -324,10 +324,10 @@ namespace TerrainHeatmap
         {
             var heatmap = heatmaps[heatmapIndex];
 
-            float temp = heatmap.upperValueThreshold;
+            float temp = heatmap.higherValueLimit;
 
-            heatmap.upperValueThreshold = heatmap.lowerValueThreshold;
-            heatmap.lowerValueThreshold = temp;
+            heatmap.higherValueLimit = heatmap.lowerValueLimit;
+            heatmap.lowerValueLimit = temp;
 
             return heatmap;
         }
@@ -388,7 +388,7 @@ namespace TerrainHeatmap
                 }
             }
 
-            heatmap.mapData = heatmapValues;
+            heatmap.heatmapDataPoints = heatmapValues;
         }
 
 
@@ -519,7 +519,7 @@ namespace TerrainHeatmap
 
             }
 
-            heatmap.mapData = heatmapDataArray;
+            heatmap.heatmapDataPoints = heatmapDataArray;
         }
 
 
@@ -533,15 +533,15 @@ namespace TerrainHeatmap
         {
 
             // Calculate the value as a % of HottestValueThreshold.
-            float value = heatmap.visualisationValueMap[x, y];
+            float value = heatmap.heatmapValues[x, y];
 
-            value += CalculateLowerUpperThresholdValueOffset(heatmap.lowerValueThreshold);
+            value += CalculateLowerUpperThresholdValueOffset(heatmap.lowerValueLimit);
 
             // Offset the value to ensure it's positive.
-            value += heatmap.upperValueThreshold / heatmap.splatPrototypes.Length;
+            value += heatmap.higherValueLimit / heatmap.splatPrototypes.Length;
 
             // Calculate the value as a % of the range of values it could be.
-            value = (value / (heatmap.upperValueThreshold - heatmap.lowerValueThreshold));
+            value = (value / (heatmap.higherValueLimit - heatmap.lowerValueLimit));
 
             // Normalise the value so if the value is at HottestValueThreshold, that threshold is equal to the last index in heatMapSplatPrototypes.
             value = (value * heatmap.splatPrototypes.Length - 1);
@@ -775,7 +775,7 @@ namespace TerrainHeatmap
             {
                 for (int j = y; j < y + height; j++)
                 {
-                    heatmapValues[i, j] = heatmap.mapData[i, j].value;
+                    heatmapValues[i, j] = heatmap.heatmapDataPoints[i, j].value;
                 }
             }
 
@@ -849,10 +849,10 @@ namespace TerrainHeatmap
             int yGridSquare = Mathf.FloorToInt(((float)y / incrementInterval));
 
 
-            qPoints[0, 0] = heatmap.mapData[xGridSquare, yGridSquare];
-            qPoints[0, 1] = heatmap.mapData[xGridSquare, yGridSquare + 1];
-            qPoints[1, 0] = heatmap.mapData[xGridSquare + 1, yGridSquare];
-            qPoints[1, 1] = heatmap.mapData[xGridSquare + 1, yGridSquare + 1];
+            qPoints[0, 0] = heatmap.heatmapDataPoints[xGridSquare, yGridSquare];
+            qPoints[0, 1] = heatmap.heatmapDataPoints[xGridSquare, yGridSquare + 1];
+            qPoints[1, 0] = heatmap.heatmapDataPoints[xGridSquare + 1, yGridSquare];
+            qPoints[1, 1] = heatmap.heatmapDataPoints[xGridSquare + 1, yGridSquare + 1];
 
             return qPoints;
 
@@ -874,7 +874,7 @@ namespace TerrainHeatmap
             int xGridSquare = Mathf.RoundToInt(x / incrementInterval);
             int yGridSquare = Mathf.RoundToInt(y / incrementInterval);
 
-            closetDataPoint = heatmap.mapData[xGridSquare, yGridSquare];
+            closetDataPoint = heatmap.heatmapDataPoints[xGridSquare, yGridSquare];
 
             return closetDataPoint;
         }
