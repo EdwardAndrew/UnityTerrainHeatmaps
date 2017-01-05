@@ -219,31 +219,31 @@ namespace TerrainHeatmap
 
 
             // Load the red colour into SplatProtoype.
-            var red = new SplatPrototype();
+            SplatPrototype red = new SplatPrototype();
             red.texture = TextureGenerator.GenerateTexture2D(Color.red);
             red.tileSize = new Vector2(10.0f, 10.0f);
             red.tileOffset = Vector2.zero;
 
             // Load the yellow colour into SplatProtoype.
-            var yellow = new SplatPrototype();
+            SplatPrototype yellow = new SplatPrototype();
             yellow.texture = TextureGenerator.GenerateTexture2D(Color.yellow);
             yellow.tileSize = new Vector2(10.0f, 10.0f);
             yellow.tileOffset = Vector2.zero;
 
             // Load the green colour into SplatProtoype.
-            var green = new SplatPrototype();
+            SplatPrototype green = new SplatPrototype();
             green.texture = TextureGenerator.GenerateTexture2D(Color.green);
             green.tileSize = new Vector2(10.0f, 10.0f);
             green.tileOffset = Vector2.zero;
 
             // Load the cyan colour into SplatProtoype.
-            var cyan = new SplatPrototype();
+            SplatPrototype cyan = new SplatPrototype();
             cyan.texture = TextureGenerator.GenerateTexture2D(Color.cyan);
             cyan.tileSize = new Vector2(10.0f, 10.0f);
             cyan.tileOffset = Vector2.zero;
 
             // Load the blue colour into SplatProtoype.
-            var blue = new SplatPrototype();
+            SplatPrototype blue = new SplatPrototype();
             blue.texture = TextureGenerator.GenerateTexture2D(Color.blue);
             blue.tileSize = new Vector2(10.0f, 10.0f);
             blue.tileOffset = Vector2.zero;
@@ -322,7 +322,7 @@ namespace TerrainHeatmap
         /// <returns></returns>
         Heatmap FlipHeatmapConstraints(int heatmapIndex, ref List<Heatmap> heatmaps)
         {
-            var heatmap = heatmaps[heatmapIndex];
+            Heatmap heatmap = heatmaps[heatmapIndex];
 
             float temp = heatmap.higherValueLimit;
 
@@ -884,11 +884,11 @@ namespace TerrainHeatmap
         /// </summary>
         /// <param name="worldPosition"></param>
         /// <param name="terrainSize"></param>
-        /// <param name="dataTextureResolution"></param>
+        /// <param name="heatmapResolution"></param>
         /// <param name="alphaMapResolution"></param>
         /// <param name="incrementInterval"></param>
         /// <returns></returns>
-        public Vector3 GetClosestDataPointPosition(Vector3 worldPosition, Vector3 terrainSize, int dataTextureResolution, int alphaMapResolution, float incrementInterval)
+        public Vector3 GetClosestDataPointPosition(Vector3 worldPosition, Vector3 terrainSize, int heatmapResolution, int alphaMapResolution, float incrementInterval)
         {
             Vector3 closestDataPoint;
 
