@@ -101,7 +101,7 @@ namespace TerrainHeatmap
         /// Returns true if Real Time Updates are enabled in editor mode.
         /// </summary>
         [SerializeField]
-        bool _realTimeEditorUpdateEnabled = false;
+        bool _realTimeEditorUpdateEnabled = true;
 
         /// <summary>
         /// Gets or sets a value indicating whether [real time editor update enabled].
