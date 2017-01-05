@@ -530,7 +530,7 @@ namespace TerrainHeatmap
                             {
                                 if (RTChunks != RealTimeUpdateChunksMultiplier) continue;
                                 
-                                if (GetComponent<HeatmapController>() == null) break;
+                                if (this == null) break;
                                 float threadStartTime = Time.realtimeSinceStartup;
                                 bool abortLoop = false;
 
