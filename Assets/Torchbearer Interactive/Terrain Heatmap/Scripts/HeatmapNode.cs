@@ -11,6 +11,9 @@ using System.Collections;
 
 namespace TerrainHeatmap
 {
+    /// <summary>
+    /// Custom data value node.
+    /// </summary>
     [System.Serializable]
     public class HeatmapNode : MonoBehaviour
     {

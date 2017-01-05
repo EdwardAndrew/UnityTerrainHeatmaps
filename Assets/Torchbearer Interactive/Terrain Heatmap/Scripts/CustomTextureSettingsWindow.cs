@@ -14,6 +14,9 @@ using TBUnityLib.TextureTools;
 
 namespace TerrainHeatmap
 {
+    /// <summary>
+    /// Window for adding custom texture splatmaps to the Heatmap.
+    /// </summary>
     public class CustomTextureSettingsWindow : EditorWindow
     {
 

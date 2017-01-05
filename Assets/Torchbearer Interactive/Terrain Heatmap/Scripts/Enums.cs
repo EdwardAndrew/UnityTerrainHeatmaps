@@ -8,7 +8,9 @@
 //************************************************************************
 namespace TerrainHeatmap
 {
-    // Enum for the Interpolation Mode.
+    /// <summary>
+    /// The Interpolation method used for the heatmap.
+    /// </summary>
     public enum InterpolationMode
     {
         NearestNeighbor,
@@ -16,23 +18,21 @@ namespace TerrainHeatmap
     }
 
 
-    // The data used to modify the textures.
+    /// <summary>
+    /// The data source for the heatmap.
+    /// </summary>
     public enum HeatmapData
     {
         HeightMap,
         Custom
     }
 
-    // What textures are going to be used to represent the data.
+    /// <summary>
+    /// The heatmap's splatprototype texture source.
+    /// </summary>
     public enum TextureSource
     {
         DefaultColors,
         Custom,
-    }
-
-    public enum HeatmapSplatPrototypeType
-    {
-        Color,
-        Texture
     }
 }

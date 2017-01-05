@@ -12,7 +12,9 @@ using TBUnityLib.Generic;
 
 namespace TerrainHeatmap
 {
-    // Node for storing heatMapData.
+    /// <summary>
+    /// Heatmap data point,for storing the heatmap data.
+    /// </summary>
     public class HeatmapDatum
     {
 
