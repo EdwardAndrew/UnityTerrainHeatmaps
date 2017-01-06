@@ -338,7 +338,7 @@ namespace TerrainHeatmap
 
             Terrain t = GetComponent<Terrain>();
 
-            Generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, t, GetCustomDataPointArray(), this.transform.position);
+            Generator.GenerateHeatMap(SelectedHeatmapIndex, ref _heatmaps, t, GetCustomDataPointArray(), this.transform.position,t.terrainData.heightmapResolution);
 
             t.terrainData.splatPrototypes = SelectedHeatmap.splatPrototypes;
             t.terrainData.SetAlphamaps(0, 0, SelectedHeatmap.alphaMapData);
@@ -543,7 +543,7 @@ namespace TerrainHeatmap
 
 
                                 Vector3 position = transform.position;
-                                Generator.ProcessHeatMapThreaded(selectedHeatmap, ref _heatmaps, _terrainData.GetHeights(0, 0, _terrainData.heightmapResolution, _terrainData.heightmapResolution), _terrainData.alphamapResolution, _terrainData.size, _terrain.terrainData.heightmapScale, y * chunkSize, x * chunkSize, chunkSize, chunkSize, customDataArray, position);
+                                Generator.ProcessHeatMapThreaded(selectedHeatmap, ref _heatmaps, _terrainData.GetHeights(0, 0, _terrainData.heightmapResolution, _terrainData.heightmapResolution), _terrainData.alphamapResolution, _terrainData.size, _terrain.terrainData.heightmapScale, y * chunkSize, x * chunkSize, chunkSize, chunkSize, customDataArray, position, _terrain.terrainData.heightmapResolution);
 
                                 while (Generator.isGenerateHeatmapThreadFinished == false)
                                 {
