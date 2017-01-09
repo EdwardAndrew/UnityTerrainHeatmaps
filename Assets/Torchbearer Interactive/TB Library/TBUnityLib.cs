@@ -9,7 +9,7 @@
 // Peter C Waugh - pete@tbinteractive.co.uk
 // Jonathan H Langley - jon@tbinteractive.co.uk
 //************************************************************************
-// VERSION v1.4.2
+// VERSION v1.5.0
 //************************************************************************
 using UnityEngine;
 using System.Collections;
@@ -273,6 +273,131 @@ namespace TBUnityLib
             {
                 return GenerateHalfCube(planeSizeX, planeSizeY, depth, false);
             }
+
+            public static Mesh GenerateTetrahedron(float topPlaneSizeX, float topPlaneSizeZ, float depth, float bottomPlaneSizeX, float bottomPlaneSizeZ, bool capTop = true, bool capBottom = true)
+            {
+                Mesh m = new Mesh();
+
+                List<Vector3> verticies = new List<Vector3>();
+                List<int> triangles = new List<int>();
+                List<Vector2> uvs = new List<Vector2>();
+
+                //Side X+
+                verticies.Add(new Vector3(topPlaneSizeX / 2, 0.0f, topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(topPlaneSizeX / 2, 0.0f, -topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(bottomPlaneSizeX / 2, -depth, bottomPlaneSizeZ / 2));
+                verticies.Add(new Vector3(bottomPlaneSizeX / 2, -depth, -bottomPlaneSizeZ / 2));
+                uvs.Add(new Vector2(1.0f, 1.0f));
+                uvs.Add(new Vector2(0.0f, 1.0f));
+                uvs.Add(new Vector2(1.0f, 0.0f));
+                uvs.Add(new Vector2(0.0f, 0.0f));
+                triangles.Add(1);
+                triangles.Add(0);
+                triangles.Add(2);
+                triangles.Add(2);
+                triangles.Add(3);
+                triangles.Add(1);
+
+                //Side Z+
+                verticies.Add(new Vector3(topPlaneSizeX / 2, 0.0f, topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(-topPlaneSizeX / 2, 0.0f, topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(bottomPlaneSizeX / 2, -depth, bottomPlaneSizeZ / 2));
+                verticies.Add(new Vector3(-bottomPlaneSizeX / 2, -depth, bottomPlaneSizeZ / 2));
+                uvs.Add(new Vector2(1.0f, 1.0f));
+                uvs.Add(new Vector2(0.0f, 1.0f));
+                uvs.Add(new Vector2(1.0f, 0.0f));
+                uvs.Add(new Vector2(0.0f, 0.0f));
+                triangles.Add(6);
+                triangles.Add(4);
+                triangles.Add(5);
+                triangles.Add(5);
+                triangles.Add(7);
+                triangles.Add(6);
+
+                //Size X-
+                verticies.Add(new Vector3(-topPlaneSizeX / 2, 0.0f, topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(-topPlaneSizeX / 2, 0.0f, -topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(-bottomPlaneSizeX / 2, -depth, bottomPlaneSizeZ / 2));
+                verticies.Add(new Vector3(-bottomPlaneSizeX / 2, -depth, -bottomPlaneSizeZ / 2));
+                uvs.Add(new Vector2(1.0f, 1.0f));
+                uvs.Add(new Vector2(0.0f, 1.0f));
+                uvs.Add(new Vector2(1.0f, 0.0f));
+                uvs.Add(new Vector2(0.0f, 0.0f));
+                triangles.Add(10);
+                triangles.Add(8);
+                triangles.Add(9);
+                triangles.Add(9);
+                triangles.Add(11);
+                triangles.Add(10);
+
+                //Side Z-
+                verticies.Add(new Vector3(topPlaneSizeX / 2, 0.0f, -topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(-topPlaneSizeX / 2, 0.0f, -topPlaneSizeZ / 2));
+                verticies.Add(new Vector3(bottomPlaneSizeX / 2, -depth, -bottomPlaneSizeZ / 2));
+                verticies.Add(new Vector3(-bottomPlaneSizeX / 2, -depth, -bottomPlaneSizeZ / 2));
+                uvs.Add(new Vector2(1.0f, 1.0f));
+                uvs.Add(new Vector2(0.0f, 1.0f));
+                uvs.Add(new Vector2(1.0f, 0.0f));
+                uvs.Add(new Vector2(0.0f, 0.0f));
+                triangles.Add(13);
+                triangles.Add(12);
+                triangles.Add(14);
+                triangles.Add(14);
+                triangles.Add(15);
+                triangles.Add(13);
+
+                // Cap Top
+                if (capTop)
+                {
+                    verticies.Add(new Vector3(topPlaneSizeX / 2, 0.0f, -topPlaneSizeZ / 2));
+                    verticies.Add(new Vector3(-topPlaneSizeX / 2, 0.0f, -topPlaneSizeZ / 2));
+                    verticies.Add(new Vector3(topPlaneSizeX / 2, 0.0f, topPlaneSizeZ / 2));
+                    verticies.Add(new Vector3(-topPlaneSizeX / 2, 0.0f, topPlaneSizeZ / 2));
+                    uvs.Add(new Vector2(1.0f, 1.0f));
+                    uvs.Add(new Vector2(0.0f, 1.0f));
+                    uvs.Add(new Vector2(1.0f, 0.0f));
+                    uvs.Add(new Vector2(0.0f, 0.0f));
+                    triangles.Add(17);
+                    triangles.Add(19);
+                    triangles.Add(18);
+                    triangles.Add(18);
+                    triangles.Add(16);
+                    triangles.Add(17);
+                }
+                if (capBottom)
+                {
+                    int capTopAdder = capTop ? 4 : 0;
+                    verticies.Add(new Vector3(bottomPlaneSizeX / 2, -depth, -bottomPlaneSizeZ / 2));
+                    verticies.Add(new Vector3(-bottomPlaneSizeX / 2, -depth, -bottomPlaneSizeZ / 2));
+                    verticies.Add(new Vector3(bottomPlaneSizeX / 2, -depth, bottomPlaneSizeZ / 2));
+                    verticies.Add(new Vector3(-bottomPlaneSizeX / 2, -depth, bottomPlaneSizeZ / 2));
+                    uvs.Add(new Vector2(1.0f, 1.0f));
+                    uvs.Add(new Vector2(0.0f, 1.0f));
+                    uvs.Add(new Vector2(1.0f, 0.0f));
+                    uvs.Add(new Vector2(0.0f, 0.0f));
+                    triangles.Add(19 + capTopAdder);
+                    triangles.Add(17 + capTopAdder);
+                    triangles.Add(18 + capTopAdder);
+
+                    triangles.Add(17 + capTopAdder);
+                    triangles.Add(16 + capTopAdder);
+                    triangles.Add(18 + capTopAdder);
+                }
+
+
+
+                m.vertices = verticies.ToArray();
+                m.triangles = triangles.ToArray();
+                m.uv = uvs.ToArray();
+
+
+                m.RecalculateBounds();
+                m.RecalculateNormals();
+
+                return m;
+
+            }
+
 
             public static Mesh GenerateHalfCube(float planeSizeX, float planeSizeY, float depth, bool cap)
             {
