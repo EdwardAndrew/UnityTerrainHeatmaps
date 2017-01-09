@@ -884,7 +884,7 @@ namespace TerrainHeatmap
             {
                 closetDataPoint = heatmap.heatmapDataPoints[xGridSquare, yGridSquare];
             }
-            catch(System.IndexOutOfRangeException e)
+            catch(System.IndexOutOfRangeException)
             {
                 return null;
             }
