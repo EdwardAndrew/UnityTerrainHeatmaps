@@ -443,6 +443,24 @@ namespace TerrainHeatmap
 
             }
         }
+        
+        /// <summary>
+        /// Change the selected Heatmap to a  Heatmap with a matching name.
+        /// </summary>
+        /// <param name="heatmapName"> The name of the heatmap to switch to.</param>
+        public void SwitchToHeatmap(string heatmapName)
+        {
+            foreach(Heatmap heatmap in _heatmaps)
+            {
+                if(heatmap.name == heatmapName)
+                {
+                    SelectedHeatmapIndex = _heatmaps.IndexOf(heatmap);
+                    return;
+                }
+            }
+
+            Debug.LogError("Couldn't find Heatmap with name '" + heatmapName+"'");
+        }
 
         /// <summary>
         /// Unity default Gizmo drawing method.
@@ -646,15 +664,18 @@ namespace TerrainHeatmap
             SelectedHeatmap.lowerValueLimit = temp;
         }
 
-        [MenuItem("Torchbearer Interactive/Terrain Heatmap/Create New HeatmapController")]
+        #if UNITY_EDITOR
+        [MenuItem("Torchbearer Interactive/Terrain Heatmaps/Create New Terrain Heatmap")]
         static void CreateNewHeatmapController()
         {
-            GameObject newHeatmapController = new GameObject("HeatmapController");
+            string numberOfHeatmaps = "";
+            if(GameObject.FindObjectsOfType<HeatmapController>().Length > 0) numberOfHeatmaps = " ("+ GameObject.FindObjectsOfType<HeatmapController>().Length +")";
+            GameObject newHeatmapController = new GameObject("Terrain Heatmap" + numberOfHeatmaps);
 
             newHeatmapController.AddComponent<HeatmapController>();
         }
 
-        [MenuItem("Torchbearer Interactive/Terrain Heatmap/Add Custom Heatmap Node to Selected GameObjects")]
+        [MenuItem("Torchbearer Interactive/Terrain Heatmaps/Add Custom Heatmap Node to Selected GameObjects")]
         static void AddCustomHeatmapNodeToSelectedObjects()
         {
             GameObject[] objsInSelection = Selection.gameObjects;
@@ -665,6 +686,7 @@ namespace TerrainHeatmap
             }
 
         }
+        #endif
 
 
     }
