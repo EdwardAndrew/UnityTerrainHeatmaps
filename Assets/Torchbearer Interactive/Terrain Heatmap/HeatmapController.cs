@@ -119,7 +119,7 @@ namespace TerrainHeatmap
         /// Multiplier for the number of realTimeUpdateChunks.
         /// </summary>
         [SerializeField]
-        int _realTimeUpdateChunksMultiplier = 2;
+        int _realTimeUpdateChunksMultiplier = 1;
         /// <summary>
         /// Gets or sets the real time update chunks multiplier.
         /// </summary>
@@ -153,7 +153,7 @@ namespace TerrainHeatmap
         /// The time in seconds between each Real Time Update.
         /// </summary>
         [SerializeField]
-        float _realTimeUpdateInterval = 0.5f;
+        float _realTimeUpdateInterval = 0.0f;
         /// <summary>
         /// Gets or sets the real time update interval.
         /// </summary>
@@ -711,7 +711,7 @@ namespace TerrainHeatmap
         /// </summary>
         void OnEnable()
         {
-            if (s_tbLogo == null) s_tbLogo = ((Texture)EditorGUIUtility.Load("Torchbearer Interactive/TBLogo.png"));
+            if (s_tbLogo == null) s_tbLogo = (Resources.Load<Texture>("TBLogo"));
 
             _heatmapController = target is HeatmapController ? target as HeatmapController : null;
 
