@@ -665,7 +665,7 @@ namespace TerrainHeatmap
         }
 
         #if UNITY_EDITOR
-        [MenuItem("Torchbearer Interactive/Terrain Heatmaps/Create New Terrain Heatmap")]
+        [MenuItem("Tools/Torchbearer Interactive/Terrain Heatmaps/Create New Terrain Heatmap")]
         static void CreateNewHeatmapController()
         {
             string numberOfHeatmaps = "";
@@ -675,7 +675,7 @@ namespace TerrainHeatmap
             newHeatmapController.AddComponent<HeatmapController>();
         }
 
-        [MenuItem("Torchbearer Interactive/Terrain Heatmaps/Add Custom Heatmap Node to Selected GameObjects")]
+        [MenuItem("Tools/Torchbearer Interactive/Terrain Heatmaps/Add Custom Heatmap Node to Selected GameObjects")]
         static void AddCustomHeatmapNodeToSelectedObjects()
         {
             GameObject[] objsInSelection = Selection.gameObjects;
